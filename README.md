@@ -1,14 +1,20 @@
 # Agent-native CRM Prototype
 
-An intent-driven CRM experiment: **ask a business question, retrieve source records, assemble the right workspace, and approve a concrete next step**.
+**A business question becomes a working interface—not another chat transcript.**
 
-This is a small technical demonstration, not a CRM replacement. The implementation has three primary surfaces—Today, Workspace and Explore—and only three workspace forms: Focus, Investigation and Comparison.
+A small experiment in intent-driven CRM: retrieve relevant records, interpret the situation, assemble a focused workspace, and approve a concrete next step. The full source of record remains accessible.
 
-> **Verification status:** implementation is under acceptance testing on `feat/mvp-agent-workspace`. Consult [PROJECT_STATE.md](PROJECT_STATE.md) and the PR/CI evidence before treating it as verified.
->
-> Default mode is a **clearly labelled scripted demonstration**, not a real LLM. The same AI SDK tool loop, CRM tools, schema validation, persistence, and approval boundary are exercised. A configurable DeepSeek adapter is implemented separately. Real provider compatibility and reasoning quality remain unverified until credentials are supplied and live tests are run.
+## Status and verification
 
-## Run the credential-free demo
+MVP implementation is available in [PR #3](https://github.com/wong001110/agent-native-crm/pull/3), branch `feat/mvp-agent-workspace`. Main has not been merged and there is no public deployment.
+
+The verified implementation revision is `dd5e4b87086844b38c70814f343756d5c34b5b51`. Its [CI run](https://github.com/wong001110/agent-native-crm/actions/runs/34516474643) passed typecheck, **35 Vitest tests**, a real PostgreSQL 17 integration service, production build, and **14 Chromium/Playwright tests**, including axe checks and responsive screenshots. Browser reports/screenshots are available as that run's workflow artifact. Later checkpoint-only commits do not introduce application changes; see the evidence ledger for explicit revision binding.
+
+**Default mode is a labelled scripted demonstration, not a real LLM.** It exercises the actual AI SDK loop, CRM tools, store, output validation, renderer and approval boundary. The real DeepSeek adapter is implemented, but live provider compatibility and reasoning quality remain **unverified until credentials are supplied**. Live failures never silently switch to mock success.
+
+A fresh implementer review and browser inspection were completed, with findings recorded and fixed. An independent reviewer was requested, but no completed independent review was available at handoff. Its separate gate remains unresolved; automated tests are not substituted for that review.
+
+## Quick start: no credentials required
 
 Requires Node.js 22.16 or later.
 
@@ -21,51 +27,71 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000`. Keep `APP_ORIGIN` equal to the exact browser origin; `localhost` and `127.0.0.1` are different origins.
+Open `http://127.0.0.1:3000`. Keep `APP_ORIGIN` equal to the exact browser origin. `localhost` and `127.0.0.1` are different origins.
 
-The default file-backed demo seeds 12 fictional accounts, 12 deals worth **RM535,000**, and 24 recorded activities. No real emails, customer accounts, or external calendar are accessed. Tasks, proposals, and generated workspaces are persisted locally under `.data/`; that directory is ignored by Git.
+The demo seeds **12 fictional customers, 12 deals worth RM535,000, and 24 recorded activities**, anchored on 11 September 2026. No real email, calendar, customer account or external CRM is accessed.
 
-The file adapter is **single-process and local-only**. It is not a substitute for a persistent database on serverless infrastructure. It refuses to run as storage on Vercel. A new browser session sees the same fictional source records but its own tasks, proposals, and runs. Clearing the session cookie loses the browser's access to those session-owned records; this is not a full authentication/account system.
+### A complete demonstration
 
-## Reference demo
+1. **Today → Review today's priorities**: retrieve CRM context and render a Focus workspace.
+2. **Investigate ACME**: inspect the source-backed facts, timeline and security questions.
+3. **Prepare follow-up task**: review the exact account, title, context and due date. No CRM task exists yet.
+4. **Approve & create task**: the server executes the saved proposal once.
+5. **View in Explore**: verify the task persists after refresh.
 
-1. Today → **Review today's priorities**: the tool loop retrieves CRM data and returns a Focus workspace.
-2. **Investigate ACME**: inspect the deal, source evidence and activity timeline.
-3. **Prepare follow-up task**: review the exact task, account, due date and context. No task is created yet.
-4. **Approve & create task**: the server executes the saved, session-bound proposal exactly once.
-5. **View in Explore**: the persisted task and recorded activity are visible after refresh.
+Also try `Why ACME?`, `Compare ACME and Nova`, or `Create a follow-up task for ACME.` Scripted mode intentionally has a finite vocabulary. Arbitrary natural-language understanding must be evaluated in live mode.
 
-Other supported scripted prompts include `Why ACME?`, `Compare ACME and Nova`, and `Create a follow-up task for ACME.` The scripted adapter has a deliberately finite vocabulary. Arbitrary natural-language understanding is a **live-mode evaluation**, not something the mock proves.
+## The interface
 
-Explore provides customers, deals, a simple pipeline, source activities, session-owned tasks, record details, and a manual task-preparation path. It continues to work without a successful model call.
+**Today** retains deterministic totals, the latest saved Focus situations, request starters and recent run history. Saved situations show mode/date and are not live predictions. Loading the page does not automatically incur a model call.
 
-## Connect PostgreSQL
+**Workspace** renders only Focus, Investigation or Comparison. Source evidence, actual tool activity and record links stay visible. Completed workspaces can be reopened at `/workspace?run=<id>` within their owning browser session.
 
-A local PostgreSQL instance requires no cloud credentials:
+**Explore** provides customers, deals, a simple pipeline, recorded activities, tasks, account filters and record detail. A manual task-preparation path works without a model.
+
+## Architecture
+
+```text
+React + shadcn/Base UI + Tailwind
+    -> Next.js server API
+    -> AI SDK ToolLoopAgent
+         -> scripted mock OR real DeepSeek
+         -> approved CRM tools
+    -> Zod workspace validation
+    -> hydrate facts from actually retrieved records
+    -> task-oriented React workspace
+
+Saved proposal -> explicit human approval -> persistent task + activity
+Store interface -> local demo OR PostgreSQL + Drizzle
+```
+
+**Facts are deterministic; interpretation is generative.** The model selects an approved view and returns interpretations plus observed IDs. Values, stages, dates, owners and evidence text are hydrated from the source. Invalid IDs and cross-account evidence fail validation.
+
+There is no generated JSX, `eval`, arbitrary component registry or template engine. AI prose uses the official AI Elements `MessageResponse` with a restricted, non-interactive markdown vocabulary. Tool progress is streamed as NDJSON events, not private chain-of-thought.
+
+## Use PostgreSQL
+
+The local file adapter persists under `.data/`, is single-process/local-disk only, and refuses Vercel serverless use. PostgreSQL is the intended remote-store path.
 
 ```bash
 docker compose up -d
 ```
 
-Update the server-only `.env.local`:
+Set server-side `.env.local`:
 
 ```dotenv
 DB_MODE=postgres
 DATABASE_URL=postgres://crm_demo:local_demo_only@127.0.0.1:5432/agent_crm
 ```
 
-Then:
-
 ```bash
 npm run db:setup
 npm run dev
 ```
 
-`db:setup` applies the initial idempotent schema and seeds only an empty CRM. It does not overwrite existing customers. For this small MVP the initial SQL is versioned in Git; a multi-version migration runner is not implemented. PostgreSQL approval uses a transaction and row lock; unique proposal references enforce exactly one task per approved proposal.
+The initial Git-tracked SQL is idempotent and the seed preserves existing CRM records. A general migration framework is outside MVP scope. PostgreSQL task approval uses a transaction, row lock and unique proposal reference.
 
-## Connect a real DeepSeek model
-
-Set these values **on the server only**:
+## Connect a real model
 
 ```dotenv
 AGENT_MODE=live
@@ -76,42 +102,15 @@ APP_PASSWORD=choose_a_strong_private_demo_password
 APP_ORIGIN=http://127.0.0.1:3000
 ```
 
-Restart the server. When password protection is enabled, browser HTTP Basic credentials are username `demo` and the configured `APP_PASSWORD`. Production live or PostgreSQL mode fails closed without that password. Use HTTPS for any remote deployment.
-
-The model ID is intentionally not pinned to an unverified marketing name or provider alias. The selected provider/model must support tool calling and structured output through the installed AI SDK adapter. Missing credentials or a live provider failure **never silently switches to mock mode**.
+Restart the server. All credentials stay server-side; never add a `NEXT_PUBLIC_` prefix. The model ID is deliberately configurable, not an unverified marketing name. The chosen provider/model must support tool calling and structured output through the installed adapter.
 
 ```bash
 npm run test:live
 ```
 
-This is an explicit paid-call smoke test of Focus, Investigation and Comparison. It stores evidence under `.data/live-smoke-*.json` with the Git commit, model, run IDs, outcomes and token counts. It does not automatically approve tasks. Passing it does not certify the correctness of all generated interpretations.
+This explicitly makes paid, read-only model calls for the three views and writes commit/model/run/usage evidence under `.data/live-smoke-*.json`. It does not approve tasks. Inspect the actual interpretations as well; a schema smoke test is not a model-quality certification.
 
-## Architecture
-
-```text
-Browser: stable shell + Today / Workspace / Explore
-    ↓ same-origin server API
-Next.js Node runtime
-    ├─ session and demo-access boundaries
-    ├─ AI SDK ToolLoopAgent
-    │   ├─ scripted mock OR real DeepSeek provider
-    │   └─ approved CRM read tools + prepare_task
-    ├─ Zod workspace validation
-    ├─ source hydration from actually retrieved records
-    └─ human approval endpoint → stored proposal → task
-           ↓
-    Store interface
-    ├─ local file-backed demo
-    └─ PostgreSQL + Drizzle
-```
-
-**Facts are deterministic; interpretation is generative.** Deal values, stages, owners, dates and evidence text come from retrieved records. The model produces only the constrained workspace selection, short interpretations, observed IDs and an optional prepared proposal reference. Unobserved IDs, mismatched evidence and unsupported workspace types fail validation.
-
-The UI uses a small set of application components and official shadcn/Base UI primitives. AI-generated prose uses the installed AI Elements `MessageResponse` with a restricted, non-interactive markdown vocabulary. There is no generated JSX, `eval`, arbitrary component registry, or general template engine.
-
-Run IDs are allocated and saved before generation. Tool progress is streamed as NDJSON events—not hidden reasoning. Finished workspaces are addressable at `/workspace?run=<id>` within their owning browser session.
-
-## Test and inspect
+## Tests
 
 ```bash
 npm run typecheck
@@ -121,21 +120,20 @@ npm run test:e2e
 npm run continuity:check
 ```
 
-`npm run test:e2e` starts the production build; run `npm run build` first. PostgreSQL integration tests require `TEST_DATABASE_URL`; CI supplies a PostgreSQL 17 service and runs the migration/seed before testing. A skipped local PostgreSQL test is not evidence that PostgreSQL passed.
+Run the build before the browser tests. Set `TEST_DATABASE_URL` to exercise PostgreSQL locally; CI supplies it automatically. A skipped PostgreSQL test is not a pass.
 
-GitHub CI covers typecheck, store/agent/security tests, PostgreSQL transactions, production build, Playwright browser flows, responsive layouts and axe accessibility checks. Browser reports and screenshots are uploaded as workflow artifacts. Read the exact CI run rather than assuming every listed check has passed.
+Coverage includes persistence/reopen, idempotent approval, rejection/expiry, session isolation, request-origin checks, input limits, provider errors, invalid output, bounded loops, saved views, source filters, manual fallback, keyboard interaction, accessibility and narrow-screen overflow. Automated axe checks are not a claim of full WCAG conformance.
 
-## Boundaries and limitations
+## Limits
 
-- Only one mutation: create an approved internal follow-up task. No outbound email, stage editing, customer deletion or autonomous consequential actions.
-- Proposal approval is session-bound, expires after 30 minutes while pending, and is idempotent. Rejection cannot be bypassed by reusing its ID.
-- Maximum prompt length 1,200 characters; maximum JSON request size 8 KiB; agent timeout 45 seconds; tool loop stops after six steps; one provider retry. Local admission limits are per process, not distributed rate limiting.
-- The sample dataset is anchored on 11 September 2026. It is not a live business feed. Saved workspaces are snapshots, not continuously refreshed predictions.
-- This is not enterprise authentication, multi-tenant authorization, a security certification, or a full WCAG conformance claim. Do not import sensitive customer data into an exposed prototype.
-- No MCP, memory, multi-agent system, persistent Situation lifecycle, workflow builder, vector database or external-worker system in the MVP.
+Only **approved internal task creation** is implemented. No email sending, stage editing, deletion, MCP, persistent memory, multi-agent system, vector database, external worker or workflow builder.
+
+The session cookie scopes runs/proposals/tasks; clearing it loses that browser's access to its session-owned records. This is not enterprise authentication or tenant RBAC. `APP_PASSWORD` enables HTTP Basic demo access with username `demo`; production live/PostgreSQL modes fail closed without it. Use HTTPS remotely and do not expose sensitive real customer data.
+
+Pending proposals expire after 30 minutes. Requests are limited to 8 KiB JSON and 1,200 prompt characters; agent runs stop after six steps or 45 seconds, with one provider retry. Admission limits are per process, not distributed protection. The local file store is not suitable for concurrent application processes or ephemeral serverless filesystems.
 
 ## Development continuity
 
-[AGENTS.md](AGENTS.md) defines the project constraints. Agent Continuity 0.3.4 is represented by Git-tracked source/requirement manifests, structured state, evidence, review findings, and an append-only event ledger under [`.agent-continuity/`](.agent-continuity/). This is a lightweight single-writer development mechanism, not part of the CRM product runtime.
+[AGENTS.md](AGENTS.md) and [`.agent-continuity/`](.agent-continuity/) track Agent Continuity 0.3.4: original sources, requirements/checks, explicit deferrals, evidence, reviewer findings and append-only history. This is lightweight single-writer development state, not part of the CRM agent's memory.
 
-[Product scope](docs/product-scope.md) · [Architecture](docs/architecture.md) · [UI/UX protocol](docs/ui-ux-protocol.md) · [Roadmap](docs/roadmap.md)
+[Current state](PROJECT_STATE.md) · [Product scope](docs/product-scope.md) · [Architecture](docs/architecture.md) · [UI/UX protocol](docs/ui-ux-protocol.md) · [Roadmap](docs/roadmap.md) · [Review report](docs/mvp-review.md)
