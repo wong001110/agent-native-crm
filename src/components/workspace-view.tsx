@@ -1,6 +1,6 @@
 "use client";
 import { ArrowUpRight, AlertTriangle, TrendingUp, ArrowRight, Check, ShieldCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MessageResponse } from '@/components/ai-elements/message';
 import { api } from '@/lib/browser-api';
@@ -14,10 +14,12 @@ export function EvidenceList({activities,onOpen}:{activities:Activity[];onOpen:(
 }
 export function ActionCard({proposal,account,onChanged}:{proposal:Proposal;account:string;onChanged:()=>Promise<void>}){
   const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [outcome,setOutcome]=useState<string|null>(null);
-  const status=outcome??proposal.status;const expired=new Date(proposal.expiresAt).valueOf()<Date.now();
+  const status=outcome??proposal.status;
+  const [expired,setExpired]=useState(()=>new Date(proposal.expiresAt).valueOf()<=Date.now());
+  useEffect(()=>{const timer=setTimeout(()=>setExpired(true),Math.max(0,new Date(proposal.expiresAt).valueOf()-Date.now()));return()=>clearTimeout(timer);},[proposal.expiresAt]);
   async function decide(decision:'approve'|'reject'){
     setBusy(true);setError('');
-    try{const result=await api<{status:string;taskId:string|null}>('/api/actions',{proposalId:proposal.id,decision});setOutcome(result.status);await onChanged();}
+    try{const result=await api<{status:string;taskId:string|null}>('/api/actions',{proposalId:proposal.id,decision});setOutcome(result.status);try{await onChanged();}catch{setError('The decision was saved, but the record list could not refresh. Reload Explore to verify; do not submit a new task.');}}
     catch(e){setError(e instanceof Error?e.message:'The action did not complete.');}finally{setBusy(false);}
   }
   return <section className="action-card" aria-label="Task approval">

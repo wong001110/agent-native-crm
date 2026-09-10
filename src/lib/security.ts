@@ -31,8 +31,16 @@ export async function requireSession(request:Request) {
   return id;
 }
 export function sameOrigin(request:Request) {
-  const origin=request.headers.get('origin');
-  if(origin!==new URL(request.url).origin) throw new AppError('ORIGIN','Cross-origin actions are not allowed.',403);
+  const incoming = new URL(request.url);
+  // Next can use the internal bind address in request.url. Host identifies the
+  // browser-facing authority; APP_ORIGIN pins it explicitly behind a proxy.
+  const expected = process.env.APP_ORIGIN || `${incoming.protocol}//${request.headers.get('host') || incoming.host}`;
+  const origin = request.headers.get('origin');
+  try {
+    if (!origin || new URL(origin).origin !== new URL(expected).origin) throw new Error('Origin mismatch');
+  } catch {
+    throw new AppError('ORIGIN','Cross-origin actions are not allowed.',403);
+  }
 }
 export async function jsonBody<T>(request:Request,schema:z.ZodType<T>):Promise<T> {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw new AppError('CONTENT_TYPE','Expected an application/json request.',415);

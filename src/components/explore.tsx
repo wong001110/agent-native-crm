@@ -7,7 +7,7 @@ import { api } from '@/lib/browser-api';
 import { money, shortDate, stages, type CrmData, type Proposal } from '@/lib/domain';
 export function Explore({data,record,tab,onNavigate,onChanged}:{data:CrmData;record:string;tab:string;onNavigate:(record?:string,tab?:string)=>void;onChanged:()=>Promise<void>}){
   const [query,setQuery]=useState('');const [title,setTitle]=useState('');const [dealId,setDealId]=useState(record||data.deals[0]?.id||'');
-  const [dueDate,setDueDate]=useState(new Date(Date.now()+86400000).toISOString().slice(0,10));const [proposal,setProposal]=useState<Proposal|null>(null);const [error,setError]=useState('');const [busy,setBusy]=useState(false);
+  const [dueDate,setDueDate]=useState(()=>new Date(Date.now()+86400000).toISOString().slice(0,10));const [proposal,setProposal]=useState<Proposal|null>(null);const [error,setError]=useState('');const [busy,setBusy]=useState(false);
   const account=(id:string)=>data.customers.find(c=>c.id===data.deals.find(d=>d.id===id)?.customerId)?.name??id;
   const matches=(value:unknown)=>JSON.stringify(value).toLowerCase().includes(query.toLowerCase());
   const deals=data.deals.filter(d=>(!record||d.id===record)&&matches(d));
