@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: crm_local_only
+      POSTGRES_DB: agent_native_crm
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - crm-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm -d agent_native_crm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  crm-data:
