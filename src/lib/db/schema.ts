@@ -1,0 +1,8 @@
+import {pgTable,text,integer,jsonb,index} from 'drizzle-orm/pg-core';
+import type {AgentRun,Proposal} from '../contracts';
+export const customers=pgTable('customers',{id:text('id').primaryKey(),name:text('name').notNull(),industry:text('industry').notNull(),contact:text('contact').notNull(),email:text('email').notNull()});
+export const deals=pgTable('deals',{id:text('id').primaryKey(),customerId:text('customer_id').notNull().references(()=>customers.id),name:text('name').notNull(),value:integer('value').notNull(),stage:text('stage').notNull(),owner:text('owner').notNull(),closeDate:text('close_date').notNull()});
+export const activities=pgTable('activities',{id:text('id').primaryKey(),dealId:text('deal_id').notNull().references(()=>deals.id),at:text('at').notNull(),kind:text('kind').notNull(),text:text('text').notNull(),sessionId:text('session_id')});
+export const proposals=pgTable('action_proposals',{id:text('id').primaryKey(),sessionId:text('session_id').notNull(),payload:jsonb('payload').$type<Proposal>().notNull()},t=>[index('proposal_session_idx').on(t.sessionId)]);
+export const tasks=pgTable('tasks',{id:text('id').primaryKey(),sessionId:text('session_id').notNull(),proposalId:text('proposal_id').notNull().unique().references(()=>proposals.id),dealId:text('deal_id').notNull().references(()=>deals.id),title:text('title').notNull(),note:text('note').notNull(),dueDate:text('due_date').notNull(),createdAt:text('created_at').notNull(),status:text('status').notNull()});
+export const runs=pgTable('agent_runs',{id:text('id').primaryKey(),sessionId:text('session_id').notNull(),createdAt:text('created_at').notNull(),payload:jsonb('payload').$type<AgentRun>().notNull()},t=>[index('run_session_idx').on(t.sessionId)]);

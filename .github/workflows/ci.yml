@@ -1,0 +1,66 @@
+name: MVP verification
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: mvp-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: crm_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      AGENT_MODE: mock
+      DB_MODE: demo
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/crm_test
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/crm_test
+      APP_ORIGIN: http://127.0.0.1:3000
+      APP_PASSWORD: ci-only-demo
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Record exact tested head
+        run: git rev-parse HEAD
+      - run: npm ci --no-audit --no-fund
+      - run: npm run continuity:check
+      - name: Cold-process continuity bootstrap
+        run: python3 scripts/check-continuity.py --bootstrap
+      - run: npm run db:setup
+      - run: npm run typecheck
+      - run: npm test -- --reporter=verbose
+      - run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser and accessibility tests
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mvp-verification-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore

@@ -1,0 +1,20 @@
+/* Intrinsic prose size keeps following controls inside their card. */
+.agent-prose { height: auto; min-height: 0; min-width: 0; }
+.investigation-grid { align-items: start; }
+.investigation-aside { grid-auto-rows: max-content; align-content: start; }
+.timeline time { color: #536674; font-size: 11px; }
+.evidence-item a { font-size: 10px; }
+.source-cell { overflow-wrap: anywhere; }
+.saved-focus { margin-bottom: 32px; }
+.saved-focus .section-heading>a { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--primary); }
+.saved-focus-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.saved-focus-grid article { background:white; border:1px solid var(--border); border-radius:12px; padding:20px; }
+.saved-focus-grid article>strong { display:block; font-size:16px; font-weight:600; }
+.saved-focus-grid article>span { display:block; color:#536674; font-size:11px; margin:4px 0 12px; }
+.saved-focus-grid article>a { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--primary); margin-top:12px; min-height:24px; }
+@media(max-width:720px) {
+  .saved-focus-grid { grid-template-columns:1fr; }
+  .saved-focus .section-heading { flex-wrap:wrap; }
+  /* Hiding a BR joined adjacent words in the mobile concept copy. */
+  .starter-card h3 br, .data-note h2 br { display:initial; }
+}
