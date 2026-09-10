@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "project": "wong001110/agent-native-crm",
+  "sources": [
+    {"id":"SRC-001","origin":"user: approved MVP implementation","summary":"Implement the agreed small technology-validation prototype, through MVP, in Execution mode.","disposition":"mapped","requirements":["P1-R1","P4-R5"]},
+    {"id":"SRC-002","origin":"docs/product-scope.md: Primary surfaces","summary":"Today, Workspace, Explore; inspect customers, deals, activities, tasks and pipeline.","disposition":"mapped","requirements":["P1-R3","P3-R2"]},
+    {"id":"SRC-003","origin":"docs/architecture.md: Proposed stack","summary":"Next.js, React, TypeScript, Tailwind, shadcn/Base UI, selected AI Elements, AI SDK, DeepSeek, Zod, PostgreSQL/Drizzle, Vitest/Playwright.","disposition":"mapped","requirements":["P1-R1","P1-R2","P2-R1"]},
+    {"id":"SRC-004","origin":"docs/product-scope.md: Agent responsibilities and tools","summary":"Real bounded agent chooses approved read tools, assembles context, interprets and selects a workspace, rather than hardcoded live intent routing.","disposition":"mapped","requirements":["P2-R1","P2-R2"]},
+    {"id":"SRC-005","origin":"docs/architecture.md: deterministic vs generative boundary","summary":"Source facts are deterministic; interpretations are labeled; no arbitrary executable UI; evidence and record references must resolve.","disposition":"mapped","requirements":["P3-R1"]},
+    {"id":"SRC-006","origin":"docs/ui-ux-protocol.md","summary":"Stable shell, three workspaces, source scope, evidence, global totals, accessible loading/empty/error/success states, manual fallback and consistent modern UI.","disposition":"mapped","requirements":["P1-R3","P3-R2","P4-R4"]},
+    {"id":"SRC-007","origin":"docs/product-scope.md: Mutation and reference demo","summary":"Choose create_task; show proposal before approval, execute exactly once, reflect committed result in Explore and audit.","disposition":"mapped","requirements":["P4-R1","P4-R2"]},
+    {"id":"SRC-008","origin":"user: credentials may temporarily be mocked","summary":"Provide an explicit fixture/mock model mode and real DeepSeek adapter; never silently downgrade a failed live call to mock.","disposition":"mapped","requirements":["P2-R1","P2-R2","P4-R5"]},
+    {"id":"SRC-009","origin":"user: later real connections for real testing","summary":"Actual DeepSeek inference quality/tool-selection validation with the user's credentials remains outstanding, not passed by fixture tests.","disposition":"deferred","reason":"User authorized temporary credential mocks","destination":"user-owned:credentials-and-live-validation","requirements":["LIVE-R1"]},
+    {"id":"SRC-010","origin":"reviewer: scope guardrails","summary":"No MCP, generic template engine, persistent situations, multi-agent, memory, outbound email, full CRUD or workflow builder in this MVP.","disposition":"mapped","requirements":["P4-R5"]},
+    {"id":"SRC-011","origin":"Agent Continuity 0.3.4 / EXECUTION_MODE.md","summary":"Capture original scope, checks, evidence, findings, checkpoints and gates durably; reconcile changes and perform fresh final review.","disposition":"mapped","requirements":["P4-R5"]},
+    {"id":"SRC-012","origin":"security review during scope capture","summary":"Prototype endpoints must enforce server-side scope, approval, bounded resource use, and secret isolation; real-model public access must not be unrestricted.","disposition":"mapped","requirements":["P4-R1","P4-R3"]}
+  ]
+}

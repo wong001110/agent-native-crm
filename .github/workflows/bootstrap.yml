@@ -1,0 +1,38 @@
+name: Initialize verified UI dependencies
+on:
+  push:
+    branches: [feat/agent-native-mvp]
+    paths: [package.json, components.json, .github/workflows/bootstrap.yml]
+permissions:
+  contents: write
+jobs:
+  initialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/agent-native-mvp
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install current compatible dependencies and official UI sources
+        run: |
+          npm install
+          if [ ! -f src/components/ai-elements/message.tsx ]; then
+            npx --yes shadcn@latest add https://elements.ai-sdk.dev/api/registry/message.json --yes --overwrite
+          fi
+      - name: Verify the foundation
+        run: |
+          npm run typecheck
+          npm run build
+          npm ls --depth=0
+      - name: Preserve generated sources and lockfile on the implementation branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package.json package-lock.json components.json src/components src/lib/utils.ts src/app/globals.css
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: lock dependencies and install official AI Elements sources'
+            git push origin HEAD:feat/agent-native-mvp
+          fi
