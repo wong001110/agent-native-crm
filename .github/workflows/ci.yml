@@ -1,0 +1,70 @@
+name: Verify CRM MVP
+on:
+  push:
+    branches: [feat/agent-native-mvp, main]
+    paths-ignore: ['docs/**', 'README.md', 'PROJECT_STATE.md', '.agent-continuity/**', 'AGENTS.md']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: crm-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: crm
+          POSTGRES_PASSWORD: ci_local_only
+          POSTGRES_DB: agent_native_crm
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U crm -d agent_native_crm" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      AGENT_MODE: mock
+      DATABASE_URL: postgresql://crm:ci_local_only@127.0.0.1:5432/agent_native_crm
+      SESSION_SECRET: ci-only-session-key-not-a-production-secret-32
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - name: Static checks
+        run: npm run typecheck && npm run lint
+      - name: Unit, provider-protocol and PostgreSQL integration tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: End-to-end and accessibility tests
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crm-verification-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+      - name: Package sources and installed SDK documentation for review
+        if: always()
+        run: |
+          tar -czf review-source.tgz --exclude=node_modules --exclude=.git --exclude=.next --exclude=playwright-report --exclude=test-results --exclude=review-source.tgz .
+          mkdir -p review-docs
+          cp -r node_modules/ai/docs review-docs/ai-sdk
+          cp node_modules/ai/package.json review-docs/ai-package.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crm-source-${{ github.sha }}
+          path: |
+            review-source.tgz
+            review-docs/
+          retention-days: 7
