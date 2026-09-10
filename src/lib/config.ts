@@ -4,11 +4,11 @@ export class AppError extends Error {
   constructor(public code: string, message: string, public status = 400) { super(message); this.name = 'AppError'; }
 }
 const globals = globalThis as typeof globalThis & { crmDevSecret?: string };
-export function getConfig(env: Readonly<Record<string, string | undefined>> = process.env) {
+export function getConfig(env: Readonly<Record<string, string | undefined>> = process.env, requireModel = true) {
   const mode = env.AGENT_MODE ?? 'mock';
   if (mode !== 'mock' && mode !== 'live') throw new AppError('CONFIG', 'AGENT_MODE must be mock or live.', 503);
   const model = env.DEEPSEEK_MODEL || 'deepseek-v4-flash';
-  if (mode === 'live' && (!env.DEEPSEEK_API_KEY || !env.DEMO_ACCESS_TOKEN)) {
+  if (mode === 'live' && ((requireModel && !env.DEEPSEEK_API_KEY) || !env.DEMO_ACCESS_TOKEN)) {
     throw new AppError('CONFIG', 'Live mode requires DEEPSEEK_API_KEY and DEMO_ACCESS_TOKEN on the server. No mock fallback was used.', 503);
   }
   if ((mode === 'live' || env.NODE_ENV === 'production') && (env.SESSION_SECRET?.length ?? 0) < 32) {

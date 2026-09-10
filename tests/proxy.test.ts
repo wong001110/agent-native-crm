@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
+import { getConfig } from '@/lib/config';
 import { sameOrigin } from '@/lib/security';
 afterEach(()=>vi.unstubAllEnvs());
 describe('P4-R3-C1: browser-facing origin behind an internal bind address',()=>{
@@ -13,4 +14,9 @@ describe('P4-R3-C1: browser-facing origin behind an internal bind address',()=>{
     expect(()=>sameOrigin(new Request('http://internal:3000',{headers:{host:'internal:3000',origin:'https://crm.example'}}))).not.toThrow();
     expect(()=>sameOrigin(new Request('http://internal:3000',{headers:{host:'attacker.example',origin:'https://attacker.example'}}))).toThrow();
   });
+});
+test('P1-R3-C1: model credential failure does not disable deterministic Explore configuration',()=>{
+  const env={AGENT_MODE:'live',DEMO_ACCESS_TOKEN:'private-demo',SESSION_SECRET:'x'.repeat(32)};
+  expect(()=>getConfig(env)).toThrow();
+  expect(getConfig(env,false).mode).toBe('live');
 });

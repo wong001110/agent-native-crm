@@ -17,7 +17,7 @@ export function decodeSession(value:string,secret:string) {
   if(!/^\d+$/.test(expiry) || Number(expiry)<Date.now() || !sameSecret(signature,sign(`${id}.${expiry}`,secret))) return null;
   return id;
 }
-function signingKey() { const config=getConfig();return config.secret+'|'+config.mode+'|'+createHash('sha256').update(config.accessToken).digest('hex'); }
+function signingKey() { const config=getConfig(process.env,false);return config.secret+'|'+config.mode+'|'+createHash('sha256').update(config.accessToken).digest('hex'); }
 export function sessionCookie(request:Request,id:string) {
   const secure=new URL(request.url).protocol==='https:' ? '; Secure' : '';
   return `${cookieName}=${encodeSession(id,signingKey())}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800${secure}`;

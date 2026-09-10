@@ -35,6 +35,7 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - run: node scripts/check-continuity.mjs --self-test
       - run: npm run db:migrate
       - name: Typecheck
         id: typecheck
@@ -75,6 +76,7 @@ jobs:
           cp -r node_modules/ai/docs review-docs/ai-sdk
           cp node_modules/ai/package.json review-docs/ai-package.json
           npm audit --json > review-docs/dependency-audit.json || true
+          node scripts/check-continuity.mjs > review-docs/continuity-capture.json
           npm ls --depth=0 > review-docs/dependencies.txt
       - uses: actions/upload-artifact@v4
         if: always()
@@ -84,6 +86,10 @@ jobs:
             review-source.tgz
             review-docs/
           retention-days: 7
+      - name: Runtime dependency security gate
+        id: audit
+        continue-on-error: true
+        run: npm audit --omit=dev --audit-level=high
       - name: Required verification gate
         if: always()
         run: |
@@ -92,3 +98,4 @@ jobs:
           test "${{ steps.tests.outcome }}" = success
           test "${{ steps.build.outcome }}" = success
           test "${{ steps.e2e.outcome }}" = success
+          test "${{ steps.audit.outcome }}" = success

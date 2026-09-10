@@ -1,3 +1,5 @@
+import { config } from 'dotenv';
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
+config({path:'.env.local'});config();
 export default defineConfig({resolve:{alias:{'@':fileURLToPath(new URL('./src',import.meta.url)),'server-only':fileURLToPath(new URL('./tests/server-only.ts',import.meta.url))}},test:{environment:'node',include:['tests/**/*.test.ts'],fileParallelism:false,testTimeout:20000,hookTimeout:20000}});
