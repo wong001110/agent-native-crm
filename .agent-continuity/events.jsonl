@@ -1,3 +1,7 @@
 {"sequence":1,"event":"SCOPE_CAPTURED","date":"2026-09-11","manifest":"MVP-001","revision":1,"sourceCount":17,"requirementCount":10,"baseCommit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0"}
 {"sequence":2,"event":"SCOPE_CAPTURE_GATE_PASSED","date":"2026-09-11","unmappedSources":[],"uncoveredInvariants":[],"deferredChecks":["C-05-4"]}
 {"sequence":3,"event":"IMPLEMENTATION_AUTHORIZED","date":"2026-09-11","source":"SRC-001","scope":"P1-P4 MVP","supersedes":"SRC-017"}
+{"sequence":4,"event":"FOUNDATION_VERIFIED","commit":"55df7eb8cb9cdf4695dbaad09a8a5ec92e89b6f1","artifact":"https://github.com/wong001110/agent-native-crm/actions/runs/34512104927","checks":["C-02-1","C-02-2"],"note":"Foundation only; subsequent changes require reverification."}
+{"sequence":5,"event":"DATA_TESTS_PASSED","commit":"977e8375a5894d5d740d23a4f558a36315f4cb9e","artifact":"https://github.com/wong001110/agent-native-crm/actions/runs/34512671455","checks":["C-03-1","C-03-2","C-08-2","C-08-3"],"note":"Unit/integration coverage; browser approval flow not yet tested."}
+{"sequence":6,"event":"CHECK_FAILED","commit":"d40922402a7ef67637715e37bc4c09f6d335766e","check":"C-02-1","artifact":"https://github.com/wong001110/agent-native-crm/actions/runs/34513453579","reason":"Next ProcessEnv typing requires NODE_ENV in test fixtures; use a narrow Environment dictionary for configuration helpers."}
+{"sequence":7,"event":"REWORK_STARTED","phase":"P2-agent-tools","check":"C-02-1","resolution":"Narrow configuration helper environment type; no type suppression."}

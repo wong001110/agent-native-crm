@@ -1,21 +1,3 @@
 {
-  "schemaVersion":1,
-  "stateVersion":1,
-  "project":"wong001110/agent-native-crm",
-  "skillVersion":"0.3.4",
-  "mode":"execute",
-  "branch":"feat/mvp-agent-workspace",
-  "baseCommit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0",
-  "manifest":".agent-continuity/manifest.json",
-  "manifestRevision":1,
-  "status":"in_progress",
-  "currentPhase":"P1-foundation",
-  "captureGate":{"status":"passed","reason":"17 sources explicitly mapped/deferred/superseded; all 10 requirements have checks; 6 invariants have mapped checks"},
-  "checkStatusDefault":"pending",
-  "deferredChecks":["C-05-4"],
-  "completionGate":{"status":"not_run"},
-  "freshReviewGate":{"status":"not_run"},
-  "blockers":[],
-  "constraints":["No real provider credential present; live validation explicitly deferred","Local sandbox network unavailable; dependency and browser validation will use GitHub CI","No merge or public deployment authorized"],
-  "nextValidAction":"Build P1 foundation, then continue through P4; do not stop at a phase/PR/checkpoint"
+  "schemaVersion":1,"stateVersion":2,"project":"wong001110/agent-native-crm","skillVersion":"0.3.4","mode":"execute","branch":"feat/mvp-agent-workspace","baseCommit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0","manifest":".agent-continuity/manifest.json","manifestRevision":1,"manifestSha256":"5ac8704d0bf58ebf278aa470da46f1691ac53805a9126c86e0afd2fcbe2e31c1","status":"in_progress","currentPhase":"P3-workspaces","captureGate":{"status":"passed","sourceCount":18},"checkStatusDefault":"pending","deferredChecks":["C-05-4"],"completionGate":{"status":"not_run"},"freshReviewGate":{"status":"not_run"},"blockers":[],"latestFailure":{"commit":"d40922402a7ef67637715e37bc4c09f6d335766e","check":"C-02-1","reason":"Test environment type","rework":"implemented; awaiting CI"},"constraints":["Real DeepSeek test requires user credentials; mock is explicitly scripted","Local network unavailable; execute verification in GitHub CI","No merge or public deployment authorized"],"nextValidAction":"Verify agent loop and new UI, implement browser/security tests, remediate fresh review, then publish evidence and PR."
 }

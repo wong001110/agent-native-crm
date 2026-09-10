@@ -7,8 +7,9 @@ import type {Store} from '../store';
 import {createTools,observedContext} from './tools';
 import {createDemoModel} from './mock-model';
 import {hydrateWorkspace} from './hydrate';
-export function agentMode(env:NodeJS.ProcessEnv=process.env):'mock'|'live'{const value=env.AGENT_MODE??'mock';if(value!=='mock'&&value!=='live')throw new AppError('CONFIG','AGENT_MODE must be mock or live.',503);return value;}
-export function liveModel(env:NodeJS.ProcessEnv=process.env){
+type Environment=Record<string,string|undefined>;
+export function agentMode(env:Environment=process.env):'mock'|'live'{const value=env.AGENT_MODE??'mock';if(value!=='mock'&&value!=='live')throw new AppError('CONFIG','AGENT_MODE must be mock or live.',503);return value;}
+export function liveModel(env:Environment=process.env){
   if(!env.DEEPSEEK_API_KEY||!env.DEEPSEEK_MODEL)throw new AppError('CREDENTIALS','Live mode needs DEEPSEEK_API_KEY and DEEPSEEK_MODEL on the server. Mock mode was not substituted.',503);
   const baseURL=env.DEEPSEEK_BASE_URL||'https://api.deepseek.com';
   if(new URL(baseURL).protocol!=='https:')throw new AppError('CONFIG','The provider URL must use HTTPS.',503);
