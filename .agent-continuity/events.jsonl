@@ -1,0 +1,3 @@
+{"id":"EVT-001","type":"BOOTSTRAP","project":"wong001110/agent-native-crm","baseCommit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0","details":"Repository verified as documentation-only; no earlier implementation state found in repository."}
+{"id":"EVT-002","type":"SCOPE_CREATED","manifest":".agent-continuity/plans/mvp.json","details":"Captured user execution authorization, approved prototype scope, reviewer guardrails, UX protocol, and explicit real-credential deferral."}
+{"id":"EVT-003","type":"GATE_PASSED","gate":"scope-capture","details":"Every registered source has an explicit disposition; required work has stable acceptance-check IDs; live inference is deferred, not passed."}

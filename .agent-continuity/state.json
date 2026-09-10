@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "stateVersion": 1,
+  "project": "wong001110/agent-native-crm",
+  "branch": "feat/agent-native-mvp",
+  "baseCommit": "d2e891f263b11cd5f786a33d6370cae3c2e016a0",
+  "skillVersion": "0.3.4",
+  "mode": "execution",
+  "phase": "scope-captured",
+  "status": "in-progress",
+  "manifest": ".agent-continuity/plans/mvp.json",
+  "sources": ".agent-continuity/sources.json",
+  "captureGate": "passed: every registered source has disposition and every required requirement has observable checks",
+  "completionGate": "pending",
+  "freshReviewGate": "pending",
+  "lastVerifiedCommit": null,
+  "nextValidAction": "P1-R1-C1: implement application foundation and establish executable CI validation",
+  "deferred": ["LIVE-R1-C1: user-owned credentials and real-inference validation"],
+  "environmentNotes": ["Local sandbox has Node/TypeScript but cannot resolve public package/Git hosts. Use connected GitHub for publication and CI for dependency/build/integration/browser validation; do not claim unrun checks passed."],
+  "checks": {},
+  "findings": []
+}
