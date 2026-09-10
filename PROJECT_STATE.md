@@ -2,29 +2,33 @@
 
 > Derived view. Reconcile `.agent-continuity/` and Git/CI before resuming.
 
-## MVP checkpoint
+## MVP handoff
 
 - Repository: `wong001110/agent-native-crm`
 - Branch: `feat/mvp-agent-workspace`
 - PR: https://github.com/wong001110/agent-native-crm/pull/3
-- Verified implementation: `dd5e4b87086844b38c70814f343756d5c34b5b51`
-- Evidence: https://github.com/wong001110/agent-native-crm/actions/runs/34516474643
-- 35 Vitest + 14 Playwright tests, real PostgreSQL CI integration, typecheck and production build passed.
-- Current work: final metadata publication/readback; no remaining application feature work.
-- Main is unchanged; no merge or public deployment authorized.
+- Verified application revision: `dd5e4b87086844b38c70814f343756d5c34b5b51`
+- Application evidence: https://github.com/wong001110/agent-native-crm/actions/runs/34516474643
+- Published evidence/docs read back at: `fdb7c0e28e16b46b8271ddfea3c0de832f0e7178`
+- 35 Vitest + 14 Playwright tests, real PostgreSQL integration, typecheck and production build passed.
+- Captured implementation completion gate: **passed**, 25 required checks; one explicit credential-dependent check deferred.
+- Independent Fresh Reviewer Gate: **blocked**, not passed or waived.
+- Main unchanged. No merge or public deployment performed or authorized.
 
 ## Implemented scope
 
-Today, Workspace, Explore; Focus, Investigation, Comparison; validated tool loop; source/evidence hydration; saved workspace reload; visible mock/live and data scope; persistent, expiring, session-bound approved task creation; manual fallback; local demo and PostgreSQL/Drizzle; configurable real DeepSeek adapter.
+Today, Workspace, Explore; Focus, Investigation, Comparison; bounded validated tool loop; source/evidence hydration; saved workspace reload; visible mock/live mode and data scope; persistent, expiring, session-bound approved task creation; manual fallback; local demo and PostgreSQL/Drizzle; configurable real DeepSeek adapter.
 
-## Explicit remaining gates
+No remaining application feature work within the approved MVP. Default demonstration uses the explicitly labelled scripted model adapter. This is not a claim of validated live LLM behavior.
 
-**C-05-4 — user-owned live validation:** set server-only DeepSeek key/model ID and run `npm run test:live`. Current model tests use labelled scripted/injected models. They are not live LLM evidence.
+## Remaining gates
 
-**BLK-REVIEW-001 — external independent review:** reviewer request was attempted, but no completed independent review is available. A fresh implementer pass and browser evidence are recorded in docs/mvp-review.md. The independent Fresh Reviewer Gate is not passed, waived or replaced with self-review. Keep the PR open.
+**C-05-4 — user-owned live validation:** set server-only DeepSeek key/model ID and run `npm run test:live`. Model tests currently use scripted/injected models; they are not live LLM evidence.
 
-## Continuity
+**BLK-REVIEW-001 — external independent review:** a reviewer request was attempted but no completed independent review was returned. Fresh implementer inspection and browser evidence are recorded in docs/mvp-review.md. Keep the independent gate unresolved and the PR open until actual review evidence exists.
 
-The Git-tracked state store is lightweight and single-writer. Read AGENTS.md, sources.json, manifest.json, review-findings.json, evidence.json, state.json and events.jsonl. Compare the manifest hash and verified source revision. Metadata-only closure commits must be distinguished from application changes; changes affecting behavior stale the relevant evidence.
+## Resume safely
 
-The old planning-only restriction was superseded by the explicit user Execute instruction. Do not restart completed implementation. Do not introduce Phase 5/MCP/email/stage editing/template engines/memory/multi-agent features without separate approval.
+Read AGENTS.md, sources.json, manifest.json, review-findings.json, evidence.json, state.json and events.jsonl. Compare manifest hash and Git identity. The evidence/docs publication and final closure commits are metadata-only; application tests bind to the exact verified revision above. Revalidate any later implementation changes instead of inheriting these passes silently.
+
+The old planning-only restriction was superseded by the user's Execute instruction. Do not restart completed MVP work or add Phase 5/MCP/email/stage editing/template engines/memory/multi-agent features without separate approval. Credentials and unrestricted conversation transcripts do not belong in continuity state.
