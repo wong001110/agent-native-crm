@@ -11,5 +11,8 @@
   color: var(--muted-foreground);
 }
 .command-box textarea::placeholder { color: var(--muted-foreground); }
-/* Keep the keyboard escape hatch focusable without an off-viewport screenshot artifact. */
+/* Do not animate opacity from disabled to enabled: intermediate frames reduce
+   contrast after streaming completes. Primary hover uses a solid darker fill. */
+[data-slot="button"] { transition-property: background-color, border-color, box-shadow; }
+[data-slot="button"][class~="bg-primary"]:hover { background-color: #1f4033; }
 .skip-link:not(:focus) { clip-path: inset(50%); }
