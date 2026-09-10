@@ -1,0 +1,19 @@
+# Local development only. Do not reuse these credentials on a public host.
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: crm_demo
+      POSTGRES_PASSWORD: local_demo_only
+      POSTGRES_DB: agent_crm
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - crm_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U crm_demo -d agent_crm']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  crm_data:
