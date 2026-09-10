@@ -1,0 +1,21 @@
+{
+  "schemaVersion":1,
+  "stateVersion":1,
+  "project":"wong001110/agent-native-crm",
+  "skillVersion":"0.3.4",
+  "mode":"execute",
+  "branch":"feat/mvp-agent-workspace",
+  "baseCommit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0",
+  "manifest":".agent-continuity/manifest.json",
+  "manifestRevision":1,
+  "status":"in_progress",
+  "currentPhase":"P1-foundation",
+  "captureGate":{"status":"passed","reason":"17 sources explicitly mapped/deferred/superseded; all 10 requirements have checks; 6 invariants have mapped checks"},
+  "checkStatusDefault":"pending",
+  "deferredChecks":["C-05-4"],
+  "completionGate":{"status":"not_run"},
+  "freshReviewGate":{"status":"not_run"},
+  "blockers":[],
+  "constraints":["No real provider credential present; live validation explicitly deferred","Local sandbox network unavailable; dependency and browser validation will use GitHub CI","No merge or public deployment authorized"],
+  "nextValidAction":"Build P1 foundation, then continue through P4; do not stop at a phase/PR/checkpoint"
+}

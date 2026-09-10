@@ -1,0 +1,3 @@
+{"sequence":1,"event":"SCOPE_CAPTURED","date":"2026-09-11","manifest":"MVP-001","revision":1,"sourceCount":17,"requirementCount":10,"baseCommit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0"}
+{"sequence":2,"event":"SCOPE_CAPTURE_GATE_PASSED","date":"2026-09-11","unmappedSources":[],"uncoveredInvariants":[],"deferredChecks":["C-05-4"]}
+{"sequence":3,"event":"IMPLEMENTATION_AUTHORIZED","date":"2026-09-11","source":"SRC-001","scope":"P1-P4 MVP","supersedes":"SRC-017"}
