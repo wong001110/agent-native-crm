@@ -21,7 +21,8 @@ export async function executeRun(args:{run:Run;workspaceId:string;previousRunId?
     signal.throwIfAborted();
     if(workspace.spec.action){
       const {dealId,title,dueDate}=workspace.spec.action;
-      workspace.proposal=await proposeTask(workspaceId,{dealId,title,dueDate},run.id);
+      const observedVersion=workspace.records.find(record=>record.deal.id===dealId)?.deal.updatedAt;
+      workspace.proposal=await proposeTask(workspaceId,{dealId,title,dueDate},run.id,observedVersion);
     }
     signal.throwIfAborted();
     const [result]=await getDb().update(runs).set({status:'completed',toolEvents:events,workspace}).where(and(eq(runs.id,run.id),eq(runs.workspaceId,workspaceId))).returning();

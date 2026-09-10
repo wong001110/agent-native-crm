@@ -25,6 +25,7 @@ jobs:
         options: --health-cmd "pg_isready -U crm -d agent_native_crm" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       AGENT_MODE: mock
+      DEMO_ACCESS_TOKEN: ci-fixture-access-not-a-production-secret
       DATABASE_URL: postgresql://crm:ci_local_only@127.0.0.1:5432/agent_native_crm
       SESSION_SECRET: ci-only-session-key-not-a-production-secret-32
       NEXT_TELEMETRY_DISABLED: '1'

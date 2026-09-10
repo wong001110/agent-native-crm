@@ -8,6 +8,9 @@ export function getConfig(env: Readonly<Record<string, string | undefined>> = pr
   const mode = env.AGENT_MODE ?? 'mock';
   if (mode !== 'mock' && mode !== 'live') throw new AppError('CONFIG', 'AGENT_MODE must be mock or live.', 503);
   const model = env.DEEPSEEK_MODEL || 'deepseek-v4-flash';
+  if (env.NODE_ENV === 'production' && !env.DEMO_ACCESS_TOKEN) {
+    throw new AppError('CONFIG', 'Set DEMO_ACCESS_TOKEN before running a hosted or production demo, including fixture mode.', 503);
+  }
   if (mode === 'live' && ((requireModel && !env.DEEPSEEK_API_KEY) || !env.DEMO_ACCESS_TOKEN)) {
     throw new AppError('CONFIG', 'Live mode requires DEEPSEEK_API_KEY and DEMO_ACCESS_TOKEN on the server. No mock fallback was used.', 503);
   }
@@ -20,6 +23,5 @@ export function getConfig(env: Readonly<Record<string, string | undefined>> = pr
 export function publicError(error: unknown) {
   if (error instanceof AppError) return { message: error.message, status: error.status };
   if (error instanceof Error && (error.name === 'AbortError' || error.name === 'TimeoutError')) return { message:'The run was stopped or timed out. No CRM task was created.', status:408 };
-  // Provider/database exception messages can contain URLs, SQL or secrets. Do not forward them.
   return { message: 'This operation could not be completed. Check the server connection and try again. No success has been assumed.', status:503 };
 }

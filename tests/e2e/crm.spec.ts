@@ -1,7 +1,15 @@
 import { test,expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-test.beforeEach(async({page})=>{await page.goto('/');await expect(page.getByRole('heading',{name:'What deserves your attention?'})).toBeVisible();});
+test.beforeEach(async({page})=>{
+  await page.goto('/');
+  if(process.env.DEMO_ACCESS_TOKEN){
+    await expect(page.getByLabel('Demo access token')).toBeVisible();
+    await page.getByLabel('Demo access token').fill(process.env.DEMO_ACCESS_TOKEN);
+    await page.getByRole('button',{name:'Open workspace',exact:true}).click();
+  }
+  await expect(page.getByRole('heading',{name:'What deserves your attention?'})).toBeVisible();
+});
 test('P4-R2-C1: focus → investigation → approval → persisted task',async({page})=>{
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.getByRole('button',{name:'Review my priorities'}).click();

@@ -19,7 +19,7 @@ export function decodeSession(value:string,secret:string) {
 }
 function signingKey() { const config=getConfig(process.env,false);return config.secret+'|'+config.mode+'|'+createHash('sha256').update(config.accessToken).digest('hex'); }
 export function sessionCookie(request:Request,id:string) {
-  const secure=new URL(request.url).protocol==='https:' ? '; Secure' : '';
+  const secure=new URL(process.env.APP_ORIGIN || request.url).protocol==='https:' ? '; Secure' : '';
   return `${cookieName}=${encodeSession(id,signingKey())}; Path=/; HttpOnly; SameSite=Strict; Max-Age=604800${secure}`;
 }
 export async function requireSession(request:Request) {
@@ -32,8 +32,6 @@ export async function requireSession(request:Request) {
 }
 export function sameOrigin(request:Request) {
   const incoming = new URL(request.url);
-  // Next can use the internal bind address in request.url. Host identifies the
-  // browser-facing authority; APP_ORIGIN pins it explicitly behind a proxy.
   const expected = process.env.APP_ORIGIN || `${incoming.protocol}//${request.headers.get('host') || incoming.host}`;
   const origin = request.headers.get('origin');
   try {

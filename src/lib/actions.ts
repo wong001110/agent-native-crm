@@ -6,12 +6,13 @@ import * as t from './db/schema';
 import { AppError } from './config';
 import { actionInput } from './workspace';
 import type { Proposal } from './domain';
-export async function proposeTask(workspaceId:string,input:unknown,runId:string|null=null):Promise<Proposal> {
+export async function proposeTask(workspaceId:string,input:unknown,runId:string|null=null,expectedDealVersion?:string):Promise<Proposal> {
   const parsed=actionInput.safeParse(input); if(!parsed.success)throw new AppError('VALIDATION','Task proposal has invalid fields.');
   const value=parsed.data; const today=new Date().toISOString().slice(0,10);
   if(value.dueDate<today || value.dueDate>new Date(Date.now()+366*86400000).toISOString().slice(0,10))throw new AppError('DATE','Choose a due date from today through the next year.');
   const [deal]=await getDb().select().from(t.deals).where(and(eq(t.deals.workspaceId,workspaceId),eq(t.deals.id,value.dealId)));
   if(!deal)throw new AppError('NOT_FOUND','Deal not found in this workspace.',404);
+  if(expectedDealVersion && new Date(deal.updatedAt).valueOf()!==new Date(expectedDealVersion).valueOf())throw new AppError('STALE','The deal changed during analysis. Retrieve fresh context before proposing a task.',409);
   const [proposal]=await getDb().insert(t.proposals).values({id:randomUUID(),workspaceId,runId,...value,dealVersion:deal.updatedAt,expiresAt:new Date(Date.now()+30*60000).toISOString()}).returning();
   return proposal;
 }
