@@ -1,259 +1,96 @@
 # Architecture
 
-## Architecture objective
+## Implemented MVP
 
-The architecture should make the **agent-native interaction loop** easy to understand and verify without introducing infrastructure that the prototype does not need.
-
-The core system is:
+The application is a single Next.js application. The user authorized implementation on 11 September 2026 and explicitly allowed credentials-dependent mocks. Package versions are reproducibly recorded in `package-lock.json`; earlier conversational version estimates are not a version contract.
 
 ```text
-Browser
-  ↓
-Next.js application
-  ↓
-Agent runtime
-  ├─ DeepSeek model
-  ├─ local CRM tools
-  └─ structured workspace output
-  ↓
-PostgreSQL system of record
+React stable shell: Today / Workspace / Explore
+    -> same-origin Route Handlers (Node runtime)
+    -> AI SDK ToolLoopAgent
+        -> explicit scripted demo OR configured DeepSeek provider
+        -> CRM read tools / prepare_task
+    -> Zod workspace validation
+    -> hydrate facts from records actually retrieved
+    -> Focus / Investigation / Comparison
+
+Stored proposal -> human approval endpoint -> transactional task creation
+Store interface -> local single-process JSON demo OR PostgreSQL + Drizzle
 ```
 
-The project should remain a single application for the MVP.
+## Technology responsibilities
 
-## Proposed stack
+| Layer | Implementation |
+|---|---|
+| Application | Next.js, React, TypeScript; Route Handlers rather than a separate backend service |
+| UI | Tailwind tokens, official shadcn Base UI primitives, selected AI Elements MessageResponse |
+| Agent | AI SDK ToolLoopAgent, explicit tools, bounded steps, validated output |
+| Provider | Configurable DeepSeek model; no unverified model ID hard-coded |
+| Schema | Zod input/output schemas and discriminated workspace union |
+| Data | PostgreSQL + Drizzle; a separate local file adapter for credential-free demonstration |
+| Tests | Vitest, CI PostgreSQL integration, Playwright/Chromium and axe |
 
-### Application
+AntD, Redux, a second backend, MCP, memory, vector databases and generic template systems are not dependencies of the MVP.
 
-- Next.js
-- React
-- TypeScript
+## Source of record and tools
 
-Why: the prototype needs both a modern React interface and a server boundary for the model API key, tool execution, database access, and streaming agent responses. A separate frontend/backend split adds little value at this stage.
+Customer, Deal, Activity and Task are deterministic source records. Runs and action proposals are stored for reload, traceability and approval. Situations remain derived workspace snapshots; there is no persistent Situation lifecycle.
 
-### UI
+Approved tool vocabulary:
 
-- Tailwind CSS
-- shadcn/ui with Base UI primitives
-- selected AI Elements components only when an AI-specific primitive is useful
+- `get_crm_summary`: deterministic totals.
+- `list_deals`: bounded record discovery.
+- `get_deal`: one deal/customer.
+- `get_account_context`: timeline plus open tasks.
+- `get_recent_activities`: bounded multi-account activity lookup.
+- `prepare_task`: persists a pending action proposal, **not** a task.
 
-Do not introduce Ant Design as a second component system. The fallback CRM should use the same design system as the agent-native surface.
+The server observes which deal/customer/activity IDs each run actually retrieved. Workspace hydration rejects unobserved IDs, cross-account evidence and fabricated proposal references. Every non-neutral signal requires evidence. The renderer receives fact fields from source records, not model-generated copies.
 
-### Agent runtime
+**Facts are deterministic; interpretation is generative.** This constraint does not prove that an interpretation is correct. Interpretations remain labelled and tentative, with traceable evidence. The MVP does not display invented confidence percentages.
 
-- Vercel AI SDK
-- DeepSeek V4 Flash as the initial model
-- Zod for tool inputs and structured workspace output
+## Real versus mock mode
 
-The model name must be configurable through a server-side environment variable rather than scattered through application code.
+`AGENT_MODE=mock` selects a finite scripted provider implemented with the AI SDK test-model interface. It drives the same tool loop, real store operations, output validator and renderer. Its keyword routing exists only inside that explicit mock adapter. It does not verify natural-language understanding or model quality.
 
-Example configuration intent:
+`AGENT_MODE=live` selects the real DeepSeek adapter. `DEEPSEEK_API_KEY`, `DEEPSEEK_MODEL`, and optional `DEEPSEEK_BASE_URL` are server-only configuration. The exact model ID must match the provider's supported tool-calling/structured-output capabilities. Missing configuration or provider failure fails explicitly; it never silently substitutes the mock.
+
+Live credential validation is deferred under the user's explicit instruction. `npm run test:live` makes real paid read-only calls, records commit/model/run IDs and outcomes, and does not approve tasks.
+
+## Workspace and stream lifecycle
+
+A run ID is persisted before model execution. Actual tool-start/tool-result events stream over NDJSON. No private chain-of-thought is exposed. The final validated workspace is persisted before it is emitted. Saved workspaces are addressable at `/workspace?run=<id>` within the owning browser session.
+
+The UI is implemented directly through three workspace branches, not a template engine. AI text uses restricted, non-interactive markdown rendering. No generated JSX/HTML execution, arbitrary component types, model-provided image fetching, or clickable generated links are allowed.
+
+Today shows deterministic totals, prompt entry points, and the latest saved Focus situations when available. Saved analysis is labelled with its mode/date and is not treated as a live prediction. Loading Today does not automatically incur a paid model call.
+
+## Mutation and session boundary
+
+The only CRM mutation is creating a follow-up task:
 
 ```text
-DEEPSEEK_API_KEY=<server-only secret>
-DEEPSEEK_MODEL=<configured model id>
+prepare_task or manual form
+-> server stores exact pending proposal
+-> UI displays account/title/context/date
+-> human approves proposal ID
+-> server validates owner/status/expiry
+-> one task + recorded activity are committed
+-> receipt and Explore reflect persisted result
 ```
 
-Never expose the API key through `NEXT_PUBLIC_*` variables or browser-side calls.
+The browser cannot submit replacement task fields to the approval endpoint. Pending proposals expire after 30 minutes. Rejected proposals cannot execute. Repeated approval returns the same task. PostgreSQL uses a row lock, transaction and unique proposal reference; local demo uses an in-process serialized atomic-file write.
 
-### Data
+An HttpOnly same-site random session cookie scopes runs/proposals/tasks. The proxy replaces spoofed internal identity headers. Exact-origin POST checks reject cross-origin actions. Optional HTTP Basic demo access is required for production live/PostgreSQL modes. This is not enterprise identity or multi-tenant RBAC; do not deploy it with real sensitive customer data.
 
-- PostgreSQL
-- Drizzle ORM
+## Storage and operational limits
 
-Drizzle is a replaceable implementation choice, not a product dependency. Its purpose is to provide a small, type-safe SQL-oriented database layer.
+The local JSON adapter is for a single process with durable local disk. It refuses Vercel runtime because ephemeral serverless storage is not durable. PostgreSQL is the intended remotely deployed store. The initial Git-tracked SQL and seed preserve existing source records; a general multi-version migration runner is outside MVP scope.
 
-### Testing
+Requests are bounded to 8 KiB JSON, 1,200 prompt characters, six agent steps, 3,000 output tokens per generation step, one retry and a 45-second run timeout. Admission control is per process: one active run per session, four globally, eight starts per session per minute. This is not distributed rate limiting. Reads remain deliberately bounded for the small seed dataset; the prototype is not a scale benchmark.
 
-- Vitest for logic/schema/tool tests
-- Playwright for end-to-end interaction and accessibility-critical paths
+## Verification and handoff
 
-## Layer responsibilities
+See README for commands, `.agent-continuity/evidence.json` for check-to-commit evidence when published, and PROJECT_STATE.md for current completion/review status. A passing mocked UI test does not prove live DeepSeek behavior. A passing local file test does not prove PostgreSQL behavior; CI tests both explicitly.
 
-### 1. System of Record
-
-Owns deterministic CRM facts.
-
-Initial entities:
-
-- Customer
-- Deal
-- Activity
-- Task
-
-Avoid adding persistent Situation/Recommendation tables in the MVP. Situations should initially be derived at runtime from CRM data.
-
-### 2. Tool layer
-
-The agent never reads the database directly.
-
-It accesses data and mutations through explicit tools.
-
-Initial examples:
-
-```text
-get_crm_summary
-list_deals
-get_deal
-get_account_context
-get_recent_activities
-create_task OR update_deal_stage
-```
-
-Each tool should have:
-
-- a clear semantic description;
-- a Zod input schema;
-- explicit permission/mutation behavior;
-- deterministic output from the source system.
-
-Tools may aggregate related records for useful context. They should not hide LLM reasoning inside the tool implementation.
-
-### 3. Agent layer
-
-The agent is responsible for:
-
-- interpreting user intent;
-- choosing appropriate tools;
-- performing a bounded tool loop;
-- interpreting returned facts;
-- selecting a supported workspace type;
-- returning structured workspace data;
-- proposing, but not silently executing, consequential mutations.
-
-The agent is **not** the source of truth.
-
-### 4. Workspace schema
-
-The LLM should not return arbitrary JSX, HTML, or executable UI code.
-
-It returns constrained structured output.
-
-Conceptually:
-
-```text
-Agent
-  ↓
-WorkspaceSchema
-  ↓
-Zod validation
-  ↓
-Workspace renderer
-  ↓
-Approved React components
-```
-
-Initial workspace discriminators:
-
-```text
-focus
-investigation
-comparison
-```
-
-Keep this implementation simple. A discriminated union plus direct renderer mapping is sufficient. Do not create a generic template engine before the need exists.
-
-### 5. UI layer
-
-The UI owns visual authority.
-
-The agent may decide:
-
-- which supported workspace to use;
-- which approved sections are relevant;
-- what source-backed content belongs in those sections;
-- which allowed action should be emphasized.
-
-The agent may not decide:
-
-- arbitrary layout systems;
-- typography or spacing rules;
-- button behavior;
-- destructive interaction patterns;
-- new executable components.
-
-## Data flow example
-
-```text
-User: "Why is ACME at risk?"
-
-1. Agent interprets this as an investigation request.
-2. Agent calls get_account_context(ACME).
-3. Tool returns source-backed CRM data.
-4. Agent interprets the signals.
-5. Agent returns an Investigation workspace schema.
-6. Zod validates the result.
-7. React renders Situation + Timeline + Evidence + Action.
-8. User may open the underlying record in Explore.
-```
-
-## Mutation boundary
-
-For the MVP:
-
-```text
-Agent proposes mutation
-  ↓
-UI shows action and relevant context
-  ↓
-User approves
-  ↓
-Server executes tool
-  ↓
-Persistent CRM state changes
-  ↓
-UI confirms the result
-```
-
-The LLM must not claim success before the mutation tool actually succeeds.
-
-## Deterministic vs generative boundary
-
-### Deterministic
-
-- record values;
-- CRM totals;
-- timestamps;
-- pipeline value;
-- task state;
-- database mutations;
-- permissions;
-- tool execution result.
-
-### Generative / interpretive
-
-- situation summaries;
-- prioritization;
-- explanations;
-- recommendations;
-- workspace selection;
-- natural-language synthesis.
-
-**Architecture invariant:** facts are deterministic; interpretation is generative.
-
-## MCP
-
-MCP is intentionally deferred.
-
-Phase 1 should prove the agent-native loop using local CRM tools only.
-
-A later phase may add external capabilities such as email or calendar tools through MCP if doing so demonstrates meaningful capability discovery or cross-system execution.
-
-Do not make MCP a prerequisite for the MVP.
-
-## Explicitly deferred infrastructure
-
-Do not introduce the following without a demonstrated requirement:
-
-- separate NestJS service;
-- LangChain / LangGraph;
-- Redis;
-- Kafka / event bus;
-- vector database;
-- multi-agent runtime;
-- persistent agent memory;
-- general workflow engine;
-- generic generative-UI engine;
-- large MCP registry.
-
-The prototype should favor transparent code and explicit boundaries over architecture for hypothetical scale.
+No MCP, outbound email, customer deletion, stage editing, workflow builder, background worker, persistent memory or multi-agent runtime is included. Add those only after a separate user-approved scope change.

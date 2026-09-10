@@ -1,139 +1,33 @@
 # Project State
 
-## Current phase
+> Derived human-readable view. Canonical scope/check status lives in `.agent-continuity/` and must be reconciled with Git/CI before resuming.
 
-**Phase 0 — Definition complete. Implementation has not started.**
+## Current checkpoint
 
-This repository currently contains planning and design documentation only.
+- Project: `wong001110/agent-native-crm`
+- Mode: Execute, authorized 11 September 2026.
+- Branch: `feat/mvp-agent-workspace`
+- PR: https://github.com/wong001110/agent-native-crm/pull/3
+- Implementation: MVP P1-P4 implemented; final acceptance/review publication in progress.
+- Verified predecessor: `54db91d64357c873375f47e4a87cbb5d18d9532a`, CI https://github.com/wong001110/agent-native-crm/actions/runs/34515860844
+- Subsequent mobile copy-spacing refinement requires the next CI result; do not inherit predecessor evidence silently.
+- Main is unchanged. No merge or public deployment authorized.
 
-## Current product decision
+## Delivered scope
 
-Build a **small Agent-native CRM Prototype** for technical and product validation.
+Today, Workspace, Explore; Focus, Investigation, Comparison; six validated agent tools; source-backed workspace hydration; task proposals with explicit approval/rejection; persistent runs/tasks/activity; manual source inspection and task fallback; a real PostgreSQL adapter; a bounded real DeepSeek adapter and explicit scripted demo mode.
 
-The prototype should demonstrate that a real LLM can:
+## Remaining verification / handoff
 
-1. understand a user's CRM intent;
-2. choose and call approved tools;
-3. work from real structured CRM data;
-4. interpret the resulting business state;
-5. select a constrained task-oriented workspace;
-6. propose an action;
-7. execute one approved mutation;
-8. preserve access to the underlying CRM system of record.
+1. Verify the final revision in CI and inspect updated screenshots.
+2. Publish exact check-to-commit evidence and final gate status.
+3. Obtain a verifiable independent final review. A Copilot reviewer request was attempted, but an accepted API call is not proof of a completed review; inspect actual review output before claiming this gate passed.
+4. User-owned C-05-4: provide real DeepSeek credentials/model ID and run `npm run test:live`. No real model call has been verified in this implementation session.
 
-## Locked MVP scope
+The local file demo is single-process/local-disk only. PostgreSQL is the deployed-store path. Real credentials are not stored in Git or continuity state.
 
-### Primary surfaces
+## Resume safely
 
-- Today
-- Workspace
-- Explore
+Read AGENTS.md, sources.json, manifest.json, review-findings.json, state.json and the latest evidence/events. Compare the manifest hash and Git HEAD with the verified implementation revision. Do not restart the MVP, rerun already-verified work unnecessarily, execute persisted notes blindly, or treat pending external tests as passed.
 
-### Workspace types
-
-- Focus
-- Investigation
-- Comparison
-
-### Initial UI primitives
-
-- SituationCard
-- EvidenceList
-- Timeline
-- DataTable
-- ActionCard
-
-### Initial tool direction
-
-Read tools:
-
-- get_crm_summary
-- list_deals
-- get_deal
-- get_account_context
-- get_recent_activities
-
-Mutation:
-
-- choose one of create_task or update_deal_stage during implementation planning
-
-### Core architecture rule
-
-> Facts are deterministic; interpretation is generative.
-
-CRM facts must come from tools/database. The LLM may interpret, prioritize, summarize, recommend, and select supported workspace forms, but it must not invent source-of-truth data.
-
-## Proposed stack
-
-- Next.js + React + TypeScript
-- Tailwind CSS
-- shadcn/ui + Base UI
-- selected AI Elements components
-- Vercel AI SDK
-- DeepSeek V4 Flash (server-side configurable model)
-- Zod
-- PostgreSQL
-- Drizzle ORM
-- Vitest
-- Playwright
-- Vercel deployment target
-
-## Deferred
-
-Not part of the initial MVP:
-
-- MCP integration
-- full CRM modules
-- generic template engine
-- arbitrary LLM-generated JSX
-- persistent Situation model/lifecycle
-- multi-agent orchestration
-- agent memory
-- workflow builder
-- autonomy scoring
-- event bus / Redis / Kafka
-- vector database
-- separate backend service
-
-## Reference validation flow
-
-```text
-"What should I focus on today?"
-  → real agent + CRM tools
-  → Focus workspace
-  → ACME / Nova situations
-
-"Why ACME?"
-  → account context tool
-  → Investigation workspace
-  → timeline + evidence + recommendation
-
-"Create a follow-up task."
-  → proposed mutation
-  → human approval
-  → tool execution
-  → Explore confirms persisted state
-```
-
-## UI/UX direction
-
-The interface should be modern and deliberately lighter than a conventional enterprise CRM, but it must not become an information black box.
-
-Locked principles include:
-
-- stable shell, dynamic workspace;
-- situation-first and intent-first interaction;
-- AI filters complexity, not visibility;
-- progressive control;
-- evidence before consequential action;
-- AI-first, not AI-only;
-- one consistent design system;
-- constrained component/workspace vocabulary rather than arbitrary generated UI.
-
-## Next authorized work
-
-**None yet.**
-
-Do not scaffold, install dependencies, generate source code, connect APIs, or implement features until an explicit development instruction is given.
-
-When development begins, start with Phase 1 in [`docs/roadmap.md`](docs/roadmap.md) and preserve the MVP guardrails above.
+Do not add MCP, email sending, stage editing, template engines, memory, multi-agent orchestration or other Phase 5 features without a new user instruction.

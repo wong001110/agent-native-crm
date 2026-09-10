@@ -1,5 +1,4 @@
-/* Intrinsic-size prose prevents a third-party height:100% default from
-   pushing following controls into adjacent adaptive-workspace panels. */
+/* Intrinsic prose size keeps following controls inside their card. */
 .agent-prose { height: auto; min-height: 0; min-width: 0; }
 .investigation-grid { align-items: start; }
 .investigation-aside { grid-auto-rows: max-content; align-content: start; }
@@ -13,4 +12,9 @@
 .saved-focus-grid article>strong { display:block; font-size:16px; font-weight:600; }
 .saved-focus-grid article>span { display:block; color:#536674; font-size:11px; margin:4px 0 12px; }
 .saved-focus-grid article>a { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--primary); margin-top:12px; min-height:24px; }
-@media(max-width:720px) { .saved-focus-grid {grid-template-columns:1fr;} .saved-focus .section-heading {flex-wrap:wrap;} }
+@media(max-width:720px) {
+  .saved-focus-grid { grid-template-columns:1fr; }
+  .saved-focus .section-heading { flex-wrap:wrap; }
+  /* Hiding a BR joined adjacent words in the mobile concept copy. */
+  .starter-card h3 br, .data-note h2 br { display:initial; }
+}
