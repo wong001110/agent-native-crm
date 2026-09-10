@@ -1,259 +1,56 @@
-# Architecture
+# Implemented MVP architecture
 
-## Architecture objective
+The user authorized implementation after the Phase 0 planning baseline. This document describes the implemented choices; verification status is recorded separately in `.agent-continuity/state.json`.
 
-The architecture should make the **agent-native interaction loop** easy to understand and verify without introducing infrastructure that the prototype does not need.
+## One application, two ways to work
 
-The core system is:
-
-```text
-Browser
-  ↓
-Next.js application
-  ↓
-Agent runtime
-  ├─ DeepSeek model
-  ├─ local CRM tools
-  └─ structured workspace output
-  ↓
-PostgreSQL system of record
-```
-
-The project should remain a single application for the MVP.
-
-## Proposed stack
-
-### Application
-
-- Next.js
-- React
-- TypeScript
-
-Why: the prototype needs both a modern React interface and a server boundary for the model API key, tool execution, database access, and streaming agent responses. A separate frontend/backend split adds little value at this stage.
-
-### UI
-
-- Tailwind CSS
-- shadcn/ui with Base UI primitives
-- selected AI Elements components only when an AI-specific primitive is useful
-
-Do not introduce Ant Design as a second component system. The fallback CRM should use the same design system as the agent-native surface.
-
-### Agent runtime
-
-- Vercel AI SDK
-- DeepSeek V4 Flash as the initial model
-- Zod for tool inputs and structured workspace output
-
-The model name must be configurable through a server-side environment variable rather than scattered through application code.
-
-Example configuration intent:
+Next.js serves the React interface and server endpoints. Today/Workspace are intent-first; Explore exposes the same persistent system of record without needing model inference. Both paths use the same authorization and task-approval service.
 
 ```text
-DEEPSEEK_API_KEY=<server-only secret>
-DEEPSEEK_MODEL=<configured model id>
+Browser intention
+  → authenticated Next route
+  → bounded AI SDK ToolLoopAgent + DeepSeek
+  → scoped read tools → PostgreSQL/Drizzle
+  → show_workspace(strict schema)
+  → server validates retrieved IDs and hydrates source facts
+  → approved React view
+  → optional task proposal
+  → explicit human decision
+  → server transaction: task + activity + proposal result
 ```
 
-Never expose the API key through `NEXT_PUBLIC_*` variables or browser-side calls.
+Fixture mode replaces model interpretation with an explicitly labeled driver. It does not replace tools, persistence, schema validation or action authorization. There is no automatic live-to-fixture fallback.
 
-### Data
+## Source of truth
 
-- PostgreSQL
-- Drizzle ORM
+`customers`, `deals`, `activities` and `tasks` are the CRM record set. `workspaces` scopes isolated demo sessions. `agent_runs` records prompt, mode, actual tool events, status and a timestamped workspace snapshot. `proposals` records the action awaiting a decision, its target version, expiry and outcome. There is no persistent Situation/Recommendation lifecycle.
 
-Drizzle is a replaceable implementation choice, not a product dependency. Its purpose is to provide a small, type-safe SQL-oriented database layer.
+The schema has composite workspace/entity relationships. Every repository/tool path is scoped to the authenticated workspace. Facts displayed in a generated view are hydrated from records actually returned by tools in that run. The model provides short interpretations, source references and a view choice, not numeric truth or executable UI. Evidence association is validated structurally; whether an interpretation is semantically justified still requires live-model evaluation.
 
-### Testing
+## Tools and views
 
-- Vitest for logic/schema/tool tests
-- Playwright for end-to-end interaction and accessibility-critical paths
+Five data tools: `get_crm_summary`, `list_deals`, `get_deal`, `get_account_context`, `get_recent_activities`. They validate inputs and returned data, enforce result limits and record actual progress. `show_workspace` is a bounded presentation tool, not a CRM write.
 
-## Layer responsibilities
+Focus, Investigation and Comparison are a small discriminated Zod union with direct React rendering. Unknown types, extra executable fields, unseen entity references and mismatched evidence are rejected. The shell, interaction patterns, styles and components are not model-generated.
 
-### 1. System of Record
+The live loop is capped at six model steps, eighteen read calls, 2,200 output tokens and a 45-second deadline, with no provider retries. Admission is limited atomically to eight runs per workspace per minute and sixty globally per minute. These are prototype guardrails, not a production cost/SLA guarantee.
 
-Owns deterministic CRM facts.
+## Human-controlled mutation
 
-Initial entities:
+The only CRM write is `create_task`. Proposal creation validates the target/date/title and binds the action to the observed deal version. It does not create a CRM task. Approval requires a signed session, matching workspace, an unexpired pending proposal, unchanged deal version and a successfully completed originating run where relevant.
 
-- Customer
-- Deal
-- Activity
-- Task
+A transaction locks the proposal, inserts one task and one activity, and updates the result. A unique proposal/task relationship plus the locked state transition makes repeat approval idempotent. Rejected, stale or expired proposals cannot execute. Rejection is not undo. A manual task form uses exactly this service without the agent.
 
-Avoid adding persistent Situation/Recommendation tables in the MVP. Situations should initially be derived at runtime from CRM data.
+## Access and failure behavior
 
-### 2. Tool layer
+Secrets are server-only. Sessions use signed HttpOnly/SameSite cookies and are bound to the current access policy. Production builds, including fixtures, require a demo access token and a sufficiently long session secret. `APP_ORIGIN` pins a reverse-proxy public origin and Secure-cookie behavior. Requests have strict content-type/body/schema and origin checks. Provider/database error details are not forwarded to the browser.
 
-The agent never reads the database directly.
+Missing model credentials block inference, not deterministic Explore. Cancellation, failure and incomplete output cannot create a task. The UI retains its last usable snapshot and reports actual operation status. If an approval was saved but a subsequent list refresh fails, the UI distinguishes those outcomes. The host abruptly killing a process can leave historical run status stale; no background recovery service is included.
 
-It accesses data and mutations through explicit tools.
+## Development continuity
 
-Initial examples:
+Agent Continuity's Git-versioned JSON state, source crosswalk, checks, evidence and ledger are development artifacts, separate from the application's database. Original planning PR #1 is preserved and cross-mapped rather than silently discarded. The validator conservatively invalidates runtime evidence when code, dependencies, tests, migrations or verification scripts change.
 
-```text
-get_crm_summary
-list_deals
-get_deal
-get_account_context
-get_recent_activities
-create_task OR update_deal_stage
-```
+## Explicit non-goals
 
-Each tool should have:
-
-- a clear semantic description;
-- a Zod input schema;
-- explicit permission/mutation behavior;
-- deterministic output from the source system.
-
-Tools may aggregate related records for useful context. They should not hide LLM reasoning inside the tool implementation.
-
-### 3. Agent layer
-
-The agent is responsible for:
-
-- interpreting user intent;
-- choosing appropriate tools;
-- performing a bounded tool loop;
-- interpreting returned facts;
-- selecting a supported workspace type;
-- returning structured workspace data;
-- proposing, but not silently executing, consequential mutations.
-
-The agent is **not** the source of truth.
-
-### 4. Workspace schema
-
-The LLM should not return arbitrary JSX, HTML, or executable UI code.
-
-It returns constrained structured output.
-
-Conceptually:
-
-```text
-Agent
-  ↓
-WorkspaceSchema
-  ↓
-Zod validation
-  ↓
-Workspace renderer
-  ↓
-Approved React components
-```
-
-Initial workspace discriminators:
-
-```text
-focus
-investigation
-comparison
-```
-
-Keep this implementation simple. A discriminated union plus direct renderer mapping is sufficient. Do not create a generic template engine before the need exists.
-
-### 5. UI layer
-
-The UI owns visual authority.
-
-The agent may decide:
-
-- which supported workspace to use;
-- which approved sections are relevant;
-- what source-backed content belongs in those sections;
-- which allowed action should be emphasized.
-
-The agent may not decide:
-
-- arbitrary layout systems;
-- typography or spacing rules;
-- button behavior;
-- destructive interaction patterns;
-- new executable components.
-
-## Data flow example
-
-```text
-User: "Why is ACME at risk?"
-
-1. Agent interprets this as an investigation request.
-2. Agent calls get_account_context(ACME).
-3. Tool returns source-backed CRM data.
-4. Agent interprets the signals.
-5. Agent returns an Investigation workspace schema.
-6. Zod validates the result.
-7. React renders Situation + Timeline + Evidence + Action.
-8. User may open the underlying record in Explore.
-```
-
-## Mutation boundary
-
-For the MVP:
-
-```text
-Agent proposes mutation
-  ↓
-UI shows action and relevant context
-  ↓
-User approves
-  ↓
-Server executes tool
-  ↓
-Persistent CRM state changes
-  ↓
-UI confirms the result
-```
-
-The LLM must not claim success before the mutation tool actually succeeds.
-
-## Deterministic vs generative boundary
-
-### Deterministic
-
-- record values;
-- CRM totals;
-- timestamps;
-- pipeline value;
-- task state;
-- database mutations;
-- permissions;
-- tool execution result.
-
-### Generative / interpretive
-
-- situation summaries;
-- prioritization;
-- explanations;
-- recommendations;
-- workspace selection;
-- natural-language synthesis.
-
-**Architecture invariant:** facts are deterministic; interpretation is generative.
-
-## MCP
-
-MCP is intentionally deferred.
-
-Phase 1 should prove the agent-native loop using local CRM tools only.
-
-A later phase may add external capabilities such as email or calendar tools through MCP if doing so demonstrates meaningful capability discovery or cross-system execution.
-
-Do not make MCP a prerequisite for the MVP.
-
-## Explicitly deferred infrastructure
-
-Do not introduce the following without a demonstrated requirement:
-
-- separate NestJS service;
-- LangChain / LangGraph;
-- Redis;
-- Kafka / event bus;
-- vector database;
-- multi-agent runtime;
-- persistent agent memory;
-- general workflow engine;
-- generic generative-UI engine;
-- large MCP registry.
-
-The prototype should favor transparent code and explicit boundaries over architecture for hypothetical scale.
+No generic template engine, arbitrary JSX/HTML generation, MCP integration, multi-agent runtime, memory system, background situation analysis, full CRM replacement, outbound email or production account/RBAC system. Real provider evaluation and deployment remain separate, explicitly tracked work.

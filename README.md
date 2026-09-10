@@ -1,151 +1,114 @@
 # Agent-native CRM Prototype
 
-An exploration of how CRM workflows change when the primary interface becomes **intent-driven and agent-mediated rather than record-driven**.
+An intent-driven CRM experiment: ask for an outcome, retrieve business context through tools, work in a structured workspace, and explicitly approve consequential actions.
 
-> **Status:** Planning / design only. Implementation has not started.
+**This is a small technology-validation prototype, not a production CRM replacement.** Implementation is on `feat/agent-native-mvp` in PR #2. `main` remains the planning baseline until review and merge.
 
-## Why this exists
+## What is implemented
 
-Traditional CRM software is primarily record-driven: users navigate customers, deals, activities, tasks, dashboards, and reports, then manually interpret the state of the business and decide what to do next.
+- **Today**: deterministic CRM totals, an intent entry point, and actual recent agent activity.
+- **Workspace**: Focus, Investigation and Comparison views. The agent selects a validated schema; React renders approved components. Evidence, record links, retrieval coverage and snapshot time remain visible.
+- **Explore**: customer/deal/activity/task lists, filtering and a simple pipeline. A manual follow-up path works without an LLM.
+- **Tools and persistence**: five typed, workspace-scoped read tools backed by PostgreSQL/Drizzle, plus server-owned task proposals and human-approved task creation.
+- **Control boundary**: a model cannot approve a task. Approval checks the session, proposal status, expiry and observed deal version, then atomically creates one task and one activity. Retrying the same approval does not create duplicates.
 
-This prototype tests a different interaction model:
+### Real versus mocked
 
-```text
-User intent
-  → Agent interprets the task
-  → Agent selects and calls CRM tools
-  → Tools return real structured data
-  → Agent interprets business state
-  → A constrained workspace is rendered
-  → User reviews / approves an action
-  → Tool execution updates CRM state
+| Layer | Fixture mode | Live mode |
+|---|---|---|
+| Model interpretation | Explicitly scripted examples; not an LLM | Real DeepSeek through AI SDK |
+| Read tools | Real scoped database queries | The same real tools |
+| Workspace rendering | Real schema validation and renderer | The same validation and renderer |
+| Approval and database writes | Real | Real |
+| Business records | Synthetic seed data | Synthetic seed data |
+
+`AGENT_MODE=mock` is visible in the interface. Unsupported fixture requests fail explicitly. A failed live request **never silently becomes a fixture response**. The real adapter is implemented and its tool protocol is tested with mocked HTTP responses; this does not establish real-model reasoning quality. Credentialed acceptance remains explicitly deferred in [the live validation checklist](docs/live-validation.md).
+
+## Run locally
+
+Use Node.js 22.16+ and Docker Compose, or your own PostgreSQL database. Use a disposable development database, not production customer data.
+
+```bash
+git clone --branch feat/agent-native-mvp https://github.com/wong001110/agent-native-crm.git
+cd agent-native-crm
+npm ci
+cp .env.example .env.local
+docker compose up -d
+npm run db:migrate
+npm run dev
 ```
 
-The goal is **not** to build a complete CRM. The goal is to validate whether an agent can transform CRM state into the right working interface and action path without hiding the underlying system of record.
+Open `http://localhost:3000`. A browser session gets its own seeded workspace: eight customers, eight deals, thirteen activities and one initial task. Six active deals total MYR 344,000. Dates are relative to session creation. Reloading preserves that workspace; a fresh browser session creates a separate one. The database volume remains until you intentionally remove it.
 
-## Product thesis
+### Private production build or live model
 
-**AI-first, not AI-only.**
+Set these server-only values in `.env.local` or the hosting environment:
 
-The primary experience is agent-native, but users can always fall back to a conventional data exploration layer.
-
-- **Agent-native surface:** situations, decisions, evidence, recommended actions, adaptive workspace.
-- **Explore / control layer:** customers, deals, activities, pipeline, underlying records.
-- **System of record:** deterministic CRM data remains the source of truth.
-
-The interface should reduce interaction cost without reducing control.
-
-## Core principles
-
-- **Stable shell, dynamic workspace** — navigation remains predictable; the workspace adapts to the current task.
-- **Situation-first** — surface what is happening before exposing raw records.
-- **Intent-first** — users describe outcomes instead of manually navigating feature trees.
-- **Facts are deterministic; interpretation is generative** — the LLM never invents CRM facts.
-- **AI filters complexity, not visibility** — users retain awareness of the size and state of the underlying CRM.
-- **Progressive control** — summary → evidence → full record → manual operation.
-- **Evidence before consequential action** — important recommendations must be explainable and inspectable.
-- **Human-controlled mutation** — consequential actions require explicit approval in the MVP.
-- **No arbitrary generated UI** — the agent composes from approved workspace structures and components.
-
-## MVP
-
-### Pages
-
-1. **Today** — global CRM awareness plus a small number of situations that need attention.
-2. **Workspace** — task-oriented adaptive surface generated from agent output.
-3. **Explore** — lightweight conventional CRM fallback for inspecting source data.
-
-### Workspace types
-
-Only three are required initially:
-
-- **Focus** — which deals or situations deserve attention.
-- **Investigation** — what happened with a specific account/deal and why.
-- **Comparison** — compare a small set of deals/accounts using structured data.
-
-### Initial UI primitives
-
-- `SituationCard`
-- `EvidenceList`
-- `Timeline`
-- `DataTable`
-- `ActionCard`
-
-Avoid building a general template engine until real repetition justifies it.
-
-### Initial tools
-
-- `get_crm_summary`
-- `list_deals`
-- `get_deal`
-- `get_account_context`
-- `get_recent_activities`
-- one approved mutation tool such as `create_task` or `update_deal_stage`
-
-The tool layer may later expand through MCP, but MCP is **not part of Phase 1**.
-
-## Demo path
-
-The prototype should be able to demonstrate one complete loop:
-
-```text
-User: "What should I focus on today?"
-  → Agent inspects CRM state
-  → Focus workspace identifies ACME / Nova
-
-User: "Why ACME?"
-  → Agent retrieves account context and recent activity
-  → Investigation workspace renders situation + timeline + evidence + recommendation
-
-User: "Create a follow-up task."
-  → Agent proposes the mutation
-  → User approves
-  → Tool executes
-  → Explore confirms the persistent CRM state changed
+```dotenv
+AGENT_MODE=live
+DEEPSEEK_API_KEY=<your-real-key>
+DEEPSEEK_MODEL=<model-id-supported-by-your-DeepSeek-account>
+SESSION_SECRET=<random-value-at-least-32-characters>
+DEMO_ACCESS_TOKEN=<a-separate-random-demo-access-token>
+DATABASE_URL=<your-PostgreSQL-connection-string>
+# Pin the public origin when using a reverse proxy:
+# APP_ORIGIN=https://your-crm.example
 ```
 
-If this flow works reliably, the core thesis has been validated.
+The model ID is configurable; the example defaults to `deepseek-v4-flash`, but actual availability must be verified with your provider. Generate secrets locally, for example with `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Never commit secrets, use `NEXT_PUBLIC_` for them, or put them in chat/continuity records.
 
-## Proposed technology stack
+**Both live mode and `npm run start` require an access token and session secret.** For a production fixture demo, keep `AGENT_MODE=mock` and leave the model key empty, but still set the access token and secret. The access token is entered in the welcome screen and is not persisted in browser storage. Changing the mode/access token invalidates existing sessions.
 
-- **Application:** Next.js + React + TypeScript
-- **UI:** Tailwind CSS + shadcn/ui / Base UI
-- **AI-specific UI:** selected AI Elements components only where useful
-- **Agent runtime:** Vercel AI SDK
-- **Model:** DeepSeek V4 Flash, configured server-side via environment variables
-- **Validation / structured output:** Zod
-- **Database:** PostgreSQL
-- **Database access:** Drizzle ORM
-- **Testing:** Vitest + Playwright
-- **Deployment target:** Vercel + managed PostgreSQL
+```bash
+npm run build
+npm run start
+```
 
-The API key must remain server-side and must never use a `NEXT_PUBLIC_*` environment variable.
+No hosted deployment or real credentials have been provisioned by this implementation.
 
-## Explicit non-goals for the MVP
+## Reference demonstration
 
-Do **not** add these unless the prototype first proves a real need:
+1. Select **Review my priorities** to produce a Focus workspace from CRM context.
+2. Investigate ACME, inspect its source evidence and recorded timeline.
+3. Select **Prepare follow-up**. A proposal appears; no task exists yet.
+4. Approve it, then verify the new task in **Explore → Tasks**, including after reload.
 
-- full CRM feature parity
-- campaigns, invoicing, quotes, tickets, forecasting, territories, etc.
-- arbitrary LLM-generated JSX / React code
-- a generic template engine
-- persistent Situation lifecycle management
-- multi-agent orchestration
-- agent memory system
-- autonomy scoring
-- workflow builder
-- MCP server / large MCP tool registry
-- event bus / Kafka / Redis infrastructure
-- vector database
-- separate NestJS backend
-- LangChain / LangGraph solely for abstraction
+Also try **Compare two deals**, a high-value filter such as `Show deals over RM1,000,000`, rejection, and the manual task proposal in Explore. Fixture mode supports the documented example families, not general natural-language understanding.
 
-The agent should be genuinely capable; the surrounding infrastructure should remain deliberately small.
+## Verification
 
-## Documentation
+```bash
+node scripts/check-continuity.mjs --self-test
+npm run db:migrate
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
 
-- [`docs/product-scope.md`](docs/product-scope.md) — product boundaries, interaction model, MVP flow.
-- [`docs/architecture.md`](docs/architecture.md) — technical boundaries and proposed architecture.
-- [`docs/ui-ux-protocol.md`](docs/ui-ux-protocol.md) — UI/UX invariants for agent-native surfaces.
-- [`docs/roadmap.md`](docs/roadmap.md) — phased implementation plan without implementation work.
-- [`PROJECT_STATE.md`](PROJECT_STATE.md) — current planning state and decisions.
+Use `AGENT_MODE=mock`, a disposable PostgreSQL database, and a configured demo access token/session secret for the production-browser suite. Stop another development server on port 3000 first. The test tools read `.env.local`; CI supplies its own test-only environment. Tests create isolated workspaces and remove their own integration-test data.
+
+The CI workflow records all independent check outcomes and fails its final gate if any required check fails. It includes real PostgreSQL tests, an AI SDK/DeepSeek **mock-transport** protocol test, browser journeys, keyboard/mobile checks and automated accessibility checks. Passing automated accessibility checks is not a claim of complete WCAG conformance. See `PROJECT_STATE.md` and `.agent-continuity/` for the exact verified commit and outstanding gates.
+
+## Implementation map
+
+```text
+src/app/api/          Session, state, streaming agent, proposals and decisions
+src/lib/agent/        Real model adapter, explicit fixture driver, five read tools
+src/lib/workspace.ts  Strict workspace contract and source-reference hydration
+src/lib/actions.ts   Proposal freshness and transactional approval
+src/lib/db/          PostgreSQL schema, scoped repository and seed data
+src/components/      Stable shell, adaptive workspace and Explore
+```
+
+The lockfile is authoritative for installed versions. The stack is Next.js/React/TypeScript, Tailwind, shadcn/Base UI, selected official AI Elements sources, AI SDK, DeepSeek provider, Zod, PostgreSQL/Drizzle, Vitest and Playwright. There is no independent backend service, MCP server or generic UI template engine.
+
+## Boundaries and continuity
+
+This is a **private, controlled demo** with synthetic data, not a multi-tenant SaaS security model. It has no real user accounts/RBAC, public abuse protection, background jobs, data-retention worker, email sending, CRM imports or multi-user collaboration. Tool/step/time/rate budgets reduce prototype risk but do not replace production operational controls. A process killed by its host may leave a historical run marked `running`; it cannot approve a task. Workspace summaries are timestamped snapshots, not continuously recomputed business truth.
+
+Agent Continuity uses Git-versioned source/requirement/check mappings, execution state, findings and an append-only event ledger for this single-writer project. It is separate from the product's PostgreSQL data. `PROJECT_STATE.md` is a readable projection, not the canonical completion authority. Resume by reconciling the manifest, source crosswalk, current code and evidence; do not trust a free-text next step or a `DONE` label.
+
+No MCP, multi-agent, agent memory, arbitrary generated JSX, autonomous email, workflow builder, persistent situation lifecycle or full CRM CRUD is included. Those exclusions are deliberate.
