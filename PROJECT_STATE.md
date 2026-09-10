@@ -1,34 +1,33 @@
 # Project State
 
-> Derived view. Reconcile `.agent-continuity/` and Git/CI before resuming.
+**MVP implemented; final review remediation and main-branch reconciliation in progress.**
 
-## MVP handoff
+Current authorization: Execute mode through MVP, phase-by-phase changes, batched logical
+commits and squash merging. The previous no-merge hold is superseded. Public deployment
+and paid provisioning are not authorized.
 
-- Repository: `wong001110/agent-native-crm`
-- Branch: `feat/mvp-agent-workspace`
-- PR: https://github.com/wong001110/agent-native-crm/pull/3
-- Verified application revision: `dd5e4b87086844b38c70814f343756d5c34b5b51`
-- Application evidence: https://github.com/wong001110/agent-native-crm/actions/runs/34516474643
-- Published evidence/docs read back at: `fdb7c0e28e16b46b8271ddfea3c0de832f0e7178`
-- 35 Vitest + 14 Playwright tests, real PostgreSQL integration, typecheck and production build passed.
-- Captured implementation completion gate: **passed**, 25 required checks; one explicit credential-dependent check deferred.
-- Independent Fresh Reviewer Gate: **blocked**, not passed or waived.
-- Main unchanged. No merge or public deployment performed or authorized.
+## Delivered implementation
 
-## Implemented scope
+Today / Workspace / Explore; Focus / Investigation / Comparison; five source tools;
+AI SDK loop with explicit scripted demo mode and a real DeepSeek adapter; observed-record
+fact hydration; session-bound saved workspaces; proposed and approved internal tasks;
+manual task fallback; local demo persistence and PostgreSQL/Drizzle; responsive UI/tests.
 
-Today, Workspace, Explore; Focus, Investigation, Comparison; bounded validated tool loop; source/evidence hydration; saved workspace reload; visible mock/live mode and data scope; persistent, expiring, session-bound approved task creation; manual fallback; local demo and PostgreSQL/Drizzle; configurable real DeepSeek adapter.
+The existing P1-P4 development checkpoints are preserved in events.jsonl. Final head
+before this review was afef1af6a01c2de213d142a3f7e387feb33d27e1; CI 34517560032 passed.
+No real DeepSeek call has been verified. C-05-4 remains explicitly deferred to the user.
 
-No remaining application feature work within the approved MVP. Default demonstration uses the explicitly labelled scripted model adapter. This is not a claim of validated live LLM behavior.
+## Current review findings
 
-## Remaining gates
+FND-INT-001: preserve/map the merged planning baseline and reconcile authorization.
+FND-INT-002: reject action proposals targeting a deal absent from the displayed workspace.
+FND-INT-003: reject repeated evidence references.
 
-**C-05-4 — user-owned live validation:** set server-only DeepSeek key/model ID and run `npm run test:live`. Model tests currently use scripted/injected models; they are not live LLM evidence.
+These changes require current CI; old green tests do not certify the remediation.
+The active manifest is `.agent-continuity/manifest.json`; `integration.json` preserves
+all 39 baseline checks and their relationship to active checks. A live portion remains
+deferred wherever it maps to C-05-4.
 
-**BLK-REVIEW-001 — external independent review:** a reviewer request was attempted but no completed independent review was returned. Fresh implementer inspection and browser evidence are recorded in docs/mvp-review.md. Keep the independent gate unresolved and the PR open until actual review evidence exists.
-
-## Resume safely
-
-Read AGENTS.md, sources.json, manifest.json, review-findings.json, evidence.json, state.json and events.jsonl. Compare manifest hash and Git identity. The evidence/docs publication and final closure commits are metadata-only; application tests bind to the exact verified revision above. Revalidate any later implementation changes instead of inheriting these passes silently.
-
-The old planning-only restriction was superseded by the user's Execute instruction. Do not restart completed MVP work or add Phase 5/MCP/email/stage editing/template engines/memory/multi-agent features without separate approval. Credentials and unrestricted conversation transcripts do not belong in continuity state.
+PR #4 was a redundant foundation attempt and is closed unmerged, with its branch retained.
+Continue PR #3 rather than maintaining parallel implementations. See state.json for the
+current gate and next action. This document is not independent completion evidence.

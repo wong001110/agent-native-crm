@@ -1,8 +1,7 @@
 name: MVP verification
 on:
   push:
-    branches: [feat/mvp-agent-workspace]
-    paths-ignore: ['docs/**', '*.md', '.agent-continuity/evidence.json']
+    branches: [main]
   pull_request:
     branches: [main]
 permissions:
@@ -37,27 +36,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
+      - name: Record exact tested head
+        run: git rev-parse HEAD
       - run: npm ci --no-audit --no-fund
       - run: npm run continuity:check
+      - name: Cold-process continuity bootstrap
+        run: python3 scripts/check-continuity.py --bootstrap
       - run: npm run db:setup
       - run: npm run typecheck
       - run: npm test -- --reporter=verbose
       - run: npm run build
       - name: Install browser
-        if: hashFiles('tests/e2e/*.spec.ts') != ''
         run: npx playwright install --with-deps chromium
       - name: Browser and accessibility tests
-        if: hashFiles('tests/e2e/*.spec.ts') != ''
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: mvp-verification-${{ github.sha }}
+          name: mvp-verification-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             playwright-report/
             test-results/

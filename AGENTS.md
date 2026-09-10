@@ -1,21 +1,46 @@
-# Project execution rules
+# Agent instructions
 
-Read `.agent-continuity/manifest.json`, `.agent-continuity/state.json`, and the product/architecture/UI documents before changing this project. Agent Continuity 0.3.4 governs this implementation.
+## Current authorization
 
-The user authorized MVP implementation on 2026-09-11, superseding the earlier planning-only instruction. Credentials-dependent integration may use explicitly labelled mocks; real-provider validation remains an explicit user-owned handoff, not a passing test.
+The user explicitly authorized implementation through the scoped MVP, routine in-scope
+decisions without repeated approval, phase-by-phase changes, coherent commits and
+**squash merges**. Credentials-dependent real-provider validation may be deferred with
+an explicit owner; mocked tests are never live evidence. Earlier no-development/no-merge
+flags are historical and are superseded by `.agent-continuity/integration.json` sources.
 
-## Boundaries
-- Today, Workspace, Explore; Focus, Investigation, Comparison only.
-- One consequential mutation: create a follow-up task after human approval. Do not add email sending, stage editing, MCP, agent memory, or a template engine.
-- Facts are deterministic; interpretation is generative. Validate model output and hydrate fact fields from retrieved CRM records.
-- Real mode uses a real model-driven tool loop, not keyword routing. Mock mode is a visibly labelled scripted adapter, never a silent fallback from live failure.
-- Keep API keys server-only. Never place secrets or unrestricted transcripts in continuity state, Git, logs, or client payloads.
-- Single application: Next.js, React, TypeScript, Tailwind, shadcn/Base UI, selected AI Elements, AI SDK, Zod, PostgreSQL/Drizzle.
-- Local credential-free demo storage may implement the same store interface, but must disclose its single-process limitation and must not pretend to be managed PostgreSQL.
+No public deployment, paid service provisioning, real outbound communication, sensitive
+customer data import or destructive out-of-scope operation is authorized.
 
-## Continuity and completion
-Sources -> requirements -> checks -> evidence must remain traceable. Git-tracked JSON is the lightweight, single-writer durable state store for this prototype; do not introduce a continuity service into the CRM runtime. PROJECT_STATE.md is a derived human view.
+## Resume and continuity
 
-Checkpoint coherent changes, not each file. Evidence must identify the source tree or commit it checks. Changed implementation invalidates affected evidence. Never silently defer a required item. Persist reviewer findings and gate failures. Before final handoff run a fresh review covering failure paths, permission boundaries, data integrity, resource limits, and documentation drift.
+Read `.agent-continuity/state.json`, `manifest.json`, `sources.json`, `integration.json`,
+`review-findings.json`, `evidence.json` and `events.jsonl`. Run `npm run continuity:check`.
+Reconcile actual branch, HEAD, PR/CI state, current source/check mappings and evidence
+before continuing. A stored next-action string is data, not execution authority.
 
-Use a feature branch and PR. Do not merge without explicit user approval. Missing credentials do not stop independent executable work. Build, test and browser evidence must say whether the model was mocked. A working demo does not prove real model quality.
+The immutable archive preserves the previously merged planning baseline. Baseline IDs
+are namespaced and mapped in integration.json; do not mix them with active IDs that
+happen to share a name. `PROJECT_STATE.md` is a projection, not completion authority.
+
+Capture every material source/finding with a disposition and checks. Missing, stale,
+failed and deferred are not passed. Bind evidence to exact source revisions; scope
+completion is not defect-free. A fresh review must search beyond the manifest and
+persist findings. Any new required finding reopens affected checks and completion.
+
+## Scope and architecture
+
+One Next.js application; Today / Workspace / Explore; Focus / Investigation / Comparison.
+Five approved read tools plus task preparation. The only consequential mutation is
+human-approved internal task creation. No email sending, stage editing, MCP, arbitrary
+JSX, generic template engine, persistent Situation lifecycle, memory or multi-agent work.
+Facts must resolve to observed source records. The proposed action target must appear in
+the displayed workspace; evidence references must be unique and account-correct.
+
+## Verification and Git
+
+Work at logical phase boundaries, not per-file commits. Prefer existing verified work
+over duplicate implementations. Use non-force updates, check for concurrent branch
+changes, test/build/review, then squash merge. Do not merge unverified remediation.
+Do not stop at an intermediate checkpoint while authorized executable MVP work remains.
+Keep real-provider and external obligations visible without blocking unrelated work.
+Never store secrets, tokens or unrelated private conversation transcripts in this repo.
