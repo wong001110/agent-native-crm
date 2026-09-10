@@ -1,4 +1,4 @@
-"""Small, fail-closed scope validator; not a generic continuity framework."""
+"""Fail-closed scope validator for the single-writer prototype."""
 import json, pathlib, hashlib
 root = pathlib.Path(__file__).resolve().parents[1]
 load = lambda p: json.loads((root / p).read_text())
@@ -9,6 +9,9 @@ requirements = {r['id']: r for r in manifest['requirements']}
 checks = {c['id']: c for r in requirements.values() for c in r['checks']}
 assert len(checks) == sum(len(r['checks']) for r in requirements.values()), 'Duplicate check ID'
 all_sources = sources['sources'] + sources.get('findings', [])
+review_path = root / '.agent-continuity/review-findings.json'
+if review_path.exists():
+    all_sources += load('.agent-continuity/review-findings.json').get('findings', [])
 source_ids = {s['id'] for s in all_sources}
 assert len(source_ids) == len(all_sources), 'Duplicate source ID'
 for source in all_sources:
@@ -17,6 +20,7 @@ for source in all_sources:
     if disposition == 'mapped':
         assert source.get('requirements'), source['id']
         assert all(r in requirements for r in source['requirements']), source['id']
+        assert all(c in checks for c in source.get('checks', [])), source['id']
     else:
         assert source.get('reason'), source['id']
 for requirement in requirements.values():
@@ -24,6 +28,9 @@ for requirement in requirements.values():
 for invariant in manifest['invariants']:
     assert invariant['checks'] and all(c in checks for c in invariant['checks']), invariant['id']
 assert state['manifestRevision'] == manifest['revision'], 'Manifest/state drift'
+manifest_hash = hashlib.sha256((root/'.agent-continuity/manifest.json').read_bytes()).hexdigest()
+if state.get('manifestSha256'):
+    assert state['manifestSha256'] == manifest_hash, 'Manifest hash drift'
 for check in checks.values():
     if check.get('disposition') == 'deferred':
         assert check.get('reason') and check.get('destination'), check['id']
@@ -33,6 +40,6 @@ if state['completionGate']['status'] == 'passed':
     for identifier, check in checks.items():
         if check.get('disposition') != 'deferred':
             item = evidence['checks'].get(identifier)
-            assert item and item['status'] == 'passed' and item.get('artifact'), identifier
+            assert item and item['status'] == 'passed' and item.get('artifact') and item.get('commit'), identifier
 print('SCOPE CAPTURE GATE PASSED:',len(all_sources),'sources/findings,',len(requirements),'requirements,',len(checks),'checks')
-print('Manifest SHA256:',hashlib.sha256((root/'.agent-continuity/manifest.json').read_bytes()).hexdigest())
+print('Manifest SHA256:',manifest_hash)

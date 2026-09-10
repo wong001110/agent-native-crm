@@ -1,0 +1,9 @@
+/* Application-level constraints for third-party prose in adaptive workspaces.
+   MessageResponse defaults to height:100%; content cards must size intrinsically
+   so following controls never overflow into adjacent panels. */
+.agent-prose { height: auto; min-height: 0; min-width: 0; }
+.investigation-grid { align-items: start; }
+.investigation-aside { grid-auto-rows: max-content; align-content: start; }
+.timeline time { color: #536674; font-size: 11px; }
+.evidence-item a { font-size: 10px; }
+.source-cell { overflow-wrap: anywhere; }
