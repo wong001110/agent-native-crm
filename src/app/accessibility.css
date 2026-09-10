@@ -1,0 +1,15 @@
+/* Small factual labels retain AA contrast against the product's light surfaces. */
+.metric-strip small,
+.app-footer,
+.evidence-list .eyebrow,
+.table-sub,
+.workspace-empty,
+.pipeline-card small,
+.activity-record > div,
+.activity-record code,
+.search-field {
+  color: var(--muted-foreground);
+}
+.command-box textarea::placeholder { color: var(--muted-foreground); }
+/* Keep the keyboard escape hatch focusable without an off-viewport screenshot artifact. */
+.skip-link:not(:focus) { clip-path: inset(50%); }

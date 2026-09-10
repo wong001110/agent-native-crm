@@ -22,7 +22,17 @@ export function CrmApp(){
     finally{setStarting(false);}
   },[refresh]);
   const connect=(accessToken?:string)=>{setStarting(true);setError('');void initialize(accessToken);};
-  useEffect(()=>{void initialize();return()=>abort.current?.abort();},[initialize]);
+  useEffect(()=>{
+    let active=true;
+    void api('/api/session',{}).then(()=>api<AppState>('/api/state')).then(next=>{
+      if(active){setState(next);setNeedsToken(false);}
+    }).catch((error:unknown)=>{
+      if(!active)return;
+      if(error instanceof HttpError&&error.status===401)setNeedsToken(true);
+      else setError(error instanceof Error?error.message:'The CRM is unavailable.');
+    }).finally(()=>{if(active)setStarting(false);});
+    return()=>{active=false;abort.current?.abort();};
+  },[]);
   useEffect(()=>{const handler=(event:KeyboardEvent)=>{if((event.metaKey||event.ctrlKey)&&event.key==='k'){event.preventDefault();inputRef.current?.focus();}};window.addEventListener('keydown',handler);return()=>window.removeEventListener('keydown',handler);},[]);
   const requested=params.get('run');
   const selected=(requested?state?.runs.find(run=>run.id===requested):undefined)??(currentRun?state?.runs.find(run=>run.id===currentRun.id)??currentRun:undefined);

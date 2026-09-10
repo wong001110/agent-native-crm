@@ -15,6 +15,7 @@ test('P4-R2-C1: focus → investigation → approval → persisted task',async({
   await expect(page.getByText('Nothing changes until you approve.',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'Approve & create task'}).click();
   await expect(page.getByRole('heading',{name:'Follow-up task created'})).toBeVisible();
+  expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
   await page.screenshot({path:'test-results/approval-desktop.png',fullPage:true});
   await page.getByRole('button',{name:'Explore',exact:true}).click();
   await page.getByRole('button',{name:'Tasks',exact:true}).click();
@@ -45,7 +46,7 @@ test('P4-R1-C1: rejection changes no CRM tasks',async({page})=>{
 });
 test('P3-R2-C2: empty result and recoverable fixture limitation',async({page})=>{
   await page.getByLabel('What would you like to do?').fill('Show deals over RM1,000,000');await page.getByRole('button',{name:'Build workspace'}).click();await expect(page.getByRole('heading',{name:'No matching deals'})).toBeVisible();
-  await page.getByLabel('What would you like to do?').fill('Write a poem');await page.getByRole('button',{name:'Build workspace'}).click();await expect(page.getByRole('alert')).toContainText('Fixture mode supports');await expect(page.getByRole('heading',{name:'No matching deals'})).toBeVisible();
+  await page.getByLabel('What would you like to do?').fill('Write a poem');await page.getByRole('button',{name:'Build workspace'}).click();await expect(page.getByRole('alert').filter({hasText:'That operation did not complete.'})).toContainText('Fixture mode supports');await expect(page.getByRole('heading',{name:'No matching deals'})).toBeVisible();
   await page.getByRole('button',{name:'Continue in Explore'}).click();await expect(page.getByText('8 of 8 deals')).toBeVisible();
 });
 test('P4-R4-C1 / P4-R4-C2: keyboard, responsive layout and accessibility',async({page})=>{
@@ -59,6 +60,8 @@ test('P4-R4-C1 / P4-R4-C2: keyboard, responsive layout and accessibility',async(
   await page.screenshot({path:'test-results/investigation-mobile.png',fullPage:true});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.getByRole('button',{name:'Explore',exact:true}).click();await page.getByRole('button',{name:'Pipeline',exact:true}).click();
+  expect((await new AxeBuilder({page}).analyze()).violations).toEqual([]);
+  await page.screenshot({path:'test-results/explore-mobile.png',fullPage:true});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
 });
 test('P4-R3-C1: action endpoint denies missing session and cross-origin request',async({page,request})=>{
