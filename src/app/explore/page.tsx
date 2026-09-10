@@ -1,0 +1,18 @@
+import Link from 'next/link';
+import { getStore,snapshot,summarize } from '@/lib/db/store';
+import { money,shortDate } from '@/lib/utils';
+export const dynamic='force-dynamic';
+const tabs=['deals','customers','activities','tasks'] as const;
+export default async function Explore({searchParams}:{searchParams:Promise<{tab?:string;dealId?:string}>}) {
+  const params=await searchParams;
+  const tab=tabs.includes(params.tab as typeof tabs[number])?params.tab:'deals';
+  const data=await snapshot(await getStore());const summary=summarize(data);
+  const name=(id:string)=>data.customers.find(c=>c.id===id)?.name ?? 'Unknown customer';
+  const selected=data.deals.find(d=>d.id===params.dealId);
+  return <><div className="eyebrow">EXPLORE / SYSTEM OF RECORD</div><div className="page-heading compact"><h1>The full picture.</h1><p>Every record, not just what the agent selects. {summary.deals} deals · {summary.customers} customers.</p></div><nav className="tab-bar" aria-label="Record types">{tabs.map(t=><Link key={t} href={`/explore?tab=${t}`} aria-current={tab===t?'page':undefined}>{t}<span>{data[t].length}</span></Link>)}</nav><section className="table-panel"><div className="table-heading"><h2>{tab}</h2><span>Sample dataset · source-backed values</span></div><div className="table-scroll" tabIndex={0} role="region" aria-label={`${tab} records`}>
+    {tab==='deals'&&<table><caption className="sr-only">All CRM deals including closed deals</caption><thead><tr><th>Customer / deal</th><th>Value</th><th>Stage</th><th>Target close</th><th>Record</th></tr></thead><tbody>{data.deals.map(d=><tr key={d.id}><td><strong>{name(d.customerId)}</strong><small>{d.name}</small></td><td>{money(d.value)}</td><td><span className="status-pill">{d.stage}</span></td><td>{shortDate(d.closeDate)}</td><td><Link href={`/explore?tab=deals&dealId=${d.id}`} aria-label={`Open ${name(d.customerId)} record`}>Open ↗</Link></td></tr>)}</tbody></table>}
+    {tab==='customers'&&<table><thead><tr><th>Customer</th><th>Industry</th><th>Owner</th><th>Email</th></tr></thead><tbody>{data.customers.map(c=><tr key={c.id}><td><strong>{c.name}</strong></td><td>{c.industry}</td><td>{c.owner}</td><td>{c.email}</td></tr>)}</tbody></table>}
+    {tab==='activities'&&<table><thead><tr><th>Deal</th><th>Event</th><th>Source text</th><th>Recorded</th></tr></thead><tbody>{data.activities.map(a=><tr key={a.id} id={a.id}><td><Link href={`/explore?dealId=${a.dealId}`}>{a.dealId}</Link></td><td>{a.kind}</td><td className="long-cell">{a.summary}</td><td>{shortDate(a.occurredAt)}</td></tr>)}</tbody></table>}
+    {tab==='tasks'&&<table><thead><tr><th>Task</th><th>Deal</th><th>Due</th><th>Status</th></tr></thead><tbody>{data.tasks.map(t=><tr key={t.id}><td className="long-cell">{t.title}</td><td><Link href={`/explore?dealId=${t.dealId}`}>{t.dealId}</Link></td><td>{shortDate(t.dueDate)}</td><td>{t.status}</td></tr>)}</tbody></table>}
+    </div></section>{params.dealId&&!selected&&<p role="status" className="notice">This deal does not exist. The full record list remains available.</p>}{selected&&<section className="record-panel"><div className="eyebrow">FULL RECORD / {selected.id}</div><h2>{name(selected.customerId)} · {selected.name}</h2><p>{money(selected.value)} · {selected.stage} · Target close {shortDate(selected.closeDate)}</p><h3>Source timeline</h3><ul className="timeline">{data.activities.filter(a=>a.dealId===selected.id).map(a=><li key={a.id}><time>{shortDate(a.occurredAt)}</time><span>{a.summary}</span></li>)}</ul><h3>Tasks</h3>{data.tasks.filter(t=>t.dealId===selected.id).length===0?<p>No tasks recorded.</p>:<ul>{data.tasks.filter(t=>t.dealId===selected.id).map(t=><li key={t.id}>{t.title} · {t.status}</li>)}</section>}</>;
+}

@@ -1,0 +1,75 @@
+name: MVP verification
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: crm-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      AI_MODE: mock
+      NEXT_TELEMETRY_DISABLED: '1'
+      PGLITE_DATA_DIR: .data/ci-crm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Capture gate
+        run: npm run continuity:check
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Install selected official UI registry components once
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'feat/p1-')
+        run: |
+          if [ ! -f src/components/ui/button.tsx ]; then
+            npx --yes shadcn@latest add button badge input textarea table dialog skeleton --yes
+            npx --yes shadcn@latest add https://elements.ai-sdk.dev/api/registry/message.json --yes
+          fi
+      - name: Persist generated lockfile and registry source as one coherent commit
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && startsWith(github.head_ref, 'feat/p1-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          git add package.json package-lock.json components.json src/components src/lib/utils.ts src/app/globals.css
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'chore: lock dependencies and install approved UI primitives'
+            AUTH=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+            git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $AUTH" push origin "HEAD:refs/heads/$HEAD_BRANCH"
+          fi
+      - name: Record exact tested head
+        run: |
+          git rev-parse HEAD
+          npm ls --depth=0
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit and database tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser verification
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

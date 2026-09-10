@@ -1,0 +1,1 @@
+export default function Loading(){return <div className="empty-panel" role="status"><div className="eyebrow">LOADING SOURCE RECORDS</div><h2>Opening your workspace…</h2><p>Preparing the CRM snapshot. No changes are being made.</p></div>;}

@@ -1,1 +1,21 @@
-{"schema_version":1,"state_version":1,"project":"wong001110/agent-native-crm","skill_version":"0.3.4","storage_mode":"git-versioned-json-single-writer-planning","phase":"P0","status":"planning-recorded-awaiting-authorization","implementation_authorized":false,"owner_run_id":null,"lease_expires_at":null,"checkpoint":{"base_commit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0","branch":"docs/agent-continuity-bootstrap","working_commit":null,"last_verified_implementation_commit":null,"note":"Resolve the publishing commit from Git; null is unknown, not the base commit. This snapshot makes no implementation verification claim."},"scope_manifest":{"path":".agent-continuity/plans/mvp.json","sha256":"165ef6a3db0a47129d2c0dc1dc0636590b2ce64c3edc72ac52f069f9f0a5f9dd"},"source_registry":{"path":".agent-continuity/sources.json","sha256":"177e78233010d49a90a6ae9bf2ee18ea813ab630905bc5d1779af3d3bfefb587"},"requirements":{"P0-R01":"TODO","P1-R01":"TODO","P1-R02":"TODO","P1-R03":"TODO","P2-R01":"TODO","P2-R02":"TODO","P3-R01":"TODO","P3-R02":"TODO","P3-R03":"TODO","P4-R01":"TODO","P4-R02":"TODO"},"checks":{"P0-R01-C01":"pending","P0-R01-C02":"pending","P0-R01-C03":"pending","P0-R01-C04":"pending","P1-R01-C01":"pending","P1-R01-C02":"pending","P1-R01-C03":"pending","P1-R02-C01":"pending","P1-R02-C02":"pending","P1-R02-C03":"pending","P1-R03-C01":"pending","P1-R03-C02":"pending","P1-R03-C03":"pending","P2-R01-C01":"pending","P2-R01-C02":"pending","P2-R01-C03":"pending","P2-R02-C01":"pending","P2-R02-C02":"pending","P2-R02-C03":"pending","P3-R01-C01":"pending","P3-R01-C02":"pending","P3-R01-C03":"pending","P3-R01-C04":"pending","P3-R02-C01":"pending","P3-R02-C02":"pending","P3-R02-C03":"pending","P3-R03-C01":"pending","P3-R03-C02":"pending","P3-R03-C03":"pending","P3-R03-C04":"pending","P3-R03-C05":"pending","P4-R01-C01":"pending","P4-R01-C02":"pending","P4-R01-C03":"pending","P4-R01-C04":"pending","P4-R02-C01":"pending","P4-R02-C02":"pending","P4-R02-C03":"pending","P4-R02-C04":"pending"},"product_evidence":[],"gates":{"scope_capture":"pending","completion":"not_run","fresh_reviewer":"not_run"},"hold":{"reason":"Explicit user instruction: do not develop yet.","owner":"user","blocks":["scaffold","dependencies","application-code","model-api-calls","db-provisioning","deployment"],"does_not_block":["authorized documentation and continuity maintenance"]},"open_decision_ids":["DEC-001","DEC-002","DEC-003"],"next_valid_action":"Reconcile repo, sources, manifest and checks. Do not begin Phase 1 without a new explicit user development instruction.","bootstrap_validation_ref":".agent-continuity/verification/bootstrap.json"}
+{
+  "schema_version": 1,
+  "state_version": 2,
+  "project": "wong001110/agent-native-crm",
+  "skill_version": "0.3.4",
+  "mode": "execute",
+  "storage_mode": "git-versioned-json-single-writer",
+  "phase": "P1",
+  "status": "in-progress",
+  "implementation_authorized": true,
+  "scope_manifest": {"path":".agent-continuity/plans/execution.json","revision":2},
+  "source_registry": {"path":".agent-continuity/sources.json","extension":".agent-continuity/plans/execution.json#sources"},
+  "checkpoint": {"base_commit":"cb84a3a07ec94f72e477cfe2ef74ce3b414e168f","branch":"feat/p1-crm-foundation","working_commit":null,"note":"Resolve current commit from Git, not this self-referential snapshot."},
+  "default_check_status": "pending",
+  "checks": {},
+  "gates": {"scope_capture":"pending-validation","completion":"not_run","fresh_reviewer":"not_run"},
+  "deferred": [{"owner":"user","destination":"user-owned:live-model-validation","authority_ref":"SRC-020","reason":"No provider credentials; mock evidence must remain distinct."}],
+  "evidence": [],
+  "next_valid_action": "Validate captured scope; finish P1 foundation, test and review, squash merge, then continue P2-P4.",
+  "environment_notes": ["Local sandbox cannot resolve GitHub/npm hosts. Use connected GitHub APIs for publication and GitHub Actions for package installation/build/browser verification; do not claim unrun local checks."]
+}

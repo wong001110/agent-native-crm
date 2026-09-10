@@ -1,0 +1,29 @@
+{
+  "id": "ANC-MVP-EXECUTION-002",
+  "revision": 2,
+  "inherits": ".agent-continuity/plans/mvp.json",
+  "project": "wong001110/agent-native-crm",
+  "implementation_authorized": true,
+  "merge_method": "squash",
+  "sources": [
+    {"id":"SRC-019","kind":"user","summary":"Develop through MVP in Execute mode; routine in-scope decisions do not require repeated approval.","disposition":"mapped","supersedes":"SRC-001 authorization hold only","requirement_refs":["P0-R01","P4-R02"]},
+    {"id":"SRC-020","kind":"user","summary":"Credentials-dependent connections may be mocked now; retain real adapters and defer live tests until credentials are provided.","disposition":"mapped","requirement_refs":["P2-R01","P3-R01","P4-R02","EXEC-R01"]},
+    {"id":"SRC-021","kind":"user","summary":"Implement phase by phase, batch meaningful commits, and squash merge each phase PR.","disposition":"mapped","requirement_refs":["P0-R01","P4-R02"]}
+  ],
+  "decisions": [
+    {"id":"DEC-001","status":"resolved","choice":"create_task only"},
+    {"id":"DEC-002","status":"resolved-for-implementation","choice":"Configurable DeepSeek model ID; no guessed 4.1 alias. AI_MODE=mock is explicit. Live configuration failure never silently falls back.","live_validation_destination":"user-owned:DeepSeek credentials and provider acceptance"},
+    {"id":"DEC-003","status":"resolved","choice":"Explore remains usable without LLM; manual create-task form uses the same server proposal/approval boundary."},
+    {"id":"DEC-004","status":"resolved","choice":"Drizzle/PostgreSQL with credential-free local PGlite persistence; DATABASE_URL selects an external PostgreSQL adapter. Serverless requires an external database."}
+  ],
+  "check_overrides": {
+    "P0-R01-C02":{"description":"Active instructions reflect explicit MVP authorization while retaining limits on secrets, paid provisioning, deployment and destructive actions."},
+    "P0-R01-C04":{"description":"A separate bootstrap process reads durable scope/state and identifies pending checks and current authorization without conversation context; distinguish this simulation from a real new-agent handoff."},
+    "P2-R01-C01":{"disposition":"deferred","reason":"Live DeepSeek credentials not supplied; user explicitly authorized mock-first work.","destination":"user-owned:live-model-validation"},
+    "P2-R01-C02":{"disposition":"deferred","reason":"Requires real model behavior, not replaceable by fixture success.","destination":"user-owned:live-model-validation"},
+    "P4-R02-C01":{"disposition":"deferred","reason":"Real-model end-to-end validation awaits credentials; mock end-to-end has a separate check.","destination":"user-owned:live-model-validation"},
+    "P4-R02-C02":{"disposition":"deferred","reason":"Live model paraphrase/variation behavior awaits credentials; deterministic variation is tested separately.","destination":"user-owned:live-model-validation"}
+  },
+  "evidence_policy":{"live-model-run":"deferred under SRC-020, never satisfied by mock evidence","other_kinds":"remain required where applicable; exact evidence and limitations must be recorded"},
+  "additional_requirements":[{"id":"EXEC-R01","phase":"P4","source_refs":["SRC-020"],"disposition":"required","title":"Honest credential-free demonstration","checks":[{"id":"EXEC-R01-C01","description":"Mock mode is visibly labelled and executes real read tools over persistent seeded records.","evidence_kinds":["tool-tests","e2e"]},{"id":"EXEC-R01-C02","description":"The mock focus -> investigation -> proposed task -> approval -> persisted task flow works; repeat approval is safe.","evidence_kinds":["e2e","mutation-test"]},{"id":"EXEC-R01-C03","description":"Live adapter exists, missing configuration fails explicitly, and setup documents exact credential-dependent tests still outstanding.","evidence_kinds":["config-test","documentation-review"]}]}]
+}

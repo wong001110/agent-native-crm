@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export default function Workspace(){return <><div className="eyebrow">WORKSPACE</div><section className="page-heading"><h1>A place for the<br/><span>work that matters.</span></h1><p>Focus, investigate or compare. The shell stays familiar; the working view follows your intent.</p></section><section className="empty-panel"><h2>No workspace yet</h2><p>The agent runtime will create source-backed workspaces here. The underlying records are already available.</p><Link className="primary-link" href="/explore">Open source records ↗</Link></section></>;}

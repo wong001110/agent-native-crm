@@ -1,73 +1,28 @@
 # Project State
 
-> Human-readable projection of `.agent-continuity/state.json` and captured scope.
-> Read `AGENTS.md` and `.agent-continuity/README.md` before resuming.
+**Execute mode: MVP development authorized. Phase 1 in progress.**
 
-## Current state
+The previous no-development hold was explicitly superseded by the user. The active
+scope is `.agent-continuity/plans/execution.json`, inheriting the original stable IDs.
+User authorization is not test evidence. See state and verification records for actual results.
 
-**Phase 0 — definition recorded; Agent Continuity planning bootstrap proposed.**
-**Application implementation has not started and is not authorized.**
+## Decisions
 
-The earlier label “Phase 0 complete” described documentation being recorded, not a
-passing implementation/completion gate. All tracked acceptance checks remain pending.
-No product test, live model call, deployment or independent review is claimed.
+- One mutation: create_task; manual task entry will use the same approval boundary.
+- Three surfaces: Today / Workspace / Explore; three workspaces: Focus / Investigation / Comparison.
+- Next.js, React, TypeScript, Tailwind, shadcn/Base UI, selective AI Elements, AI SDK,
+  configurable DeepSeek, Zod, Drizzle and PostgreSQL.
+- Local PGlite gives persistent PostgreSQL-compatible demo data without credentials.
+- Explicit mock agent mode is allowed now. The real DeepSeek adapter and configuration
+  path remain required; live validation is deferred to the user, never marked passed.
+- Work phase by phase, batch logical commits, verify and squash merge each PR.
 
-## Locked MVP direction
+## Remaining sequence
 
-Build a small **Agent-native CRM Prototype** for technical/product validation:
-real user intent -> real LLM -> approved tools -> deterministic seeded CRM facts ->
-interpretation -> constrained workspace -> explicit approval -> one persistent change.
+P1: data foundation and Explore. P2: agent/tool runtime and validated output.
+P3: adaptive UI, evidence and failure states. P4: approval/persistence, security,
+end-to-end validation, fresh review and final reconciliation.
 
-- Surfaces: Today, Workspace, Explore.
-- Workspaces: Focus, Investigation, Comparison.
-- Primitives: SituationCard, EvidenceList, Timeline, DataTable, ActionCard.
-- Read tools: get_crm_summary, list_deals, get_deal, get_account_context,
-  get_recent_activities.
-- Mutation: exactly one of create_task / update_deal_stage; selection remains open.
-- Core records: Customer, Deal, Activity, Task.
-- Planned stack: Next.js, React, TypeScript, Tailwind, shadcn/Base UI, selected AI
-  Elements, Vercel AI SDK, configurable DeepSeek, Zod, PostgreSQL, Drizzle,
-  Vitest and Playwright. Vercel is a target, not an authorized deployment.
-
-Facts are deterministic; interpretation is generative. Keep a stable shell,
-situation/intent-first work, global scope visibility, progressive evidence/source
-access, one design system, human-controlled mutations and no arbitrary generated UI.
-
-## Open decisions and exclusions
-
-See `.agent-continuity/sources.json` for stable IDs and dispositions.
-
-- DEC-001: choose the single mutation and reconcile the reference task-creation demo.
-- DEC-002: verify actual DeepSeek provider model ID and compatible package versions;
-  earlier model/version suggestions are not verification evidence.
-- DEC-003: define the supported manual-operation path without promising full CRUD.
-
-MCP, full CRM modules, generic template/workflow engines, persistent Situations,
-multi-agent/memory/vector infrastructure, autonomy scoring, distributed services,
-and large component catalogs remain outside the core MVP. They are not forgotten work.
-Arbitrary model-generated executable UI and autonomous outbound communication are
-rejected under the current product boundary.
-
-## Reference demo
-
-“What should I focus on today?” -> Focus with source-backed ACME/Nova situations.
-“Why ACME?” -> Investigation with timeline, evidence and recommendation.
-Propose the chosen action -> user approves -> server tool succeeds -> Explore shows
-persisted state. The existing reference uses create_task; update it if stage update
-is selected instead. Comparison remains separately required even outside this demo.
-
-## Continuity status
-
-Git-backed structured planning state and event ledger; no separate state service.
-Requirements/checks are mapped; all checks are pending. Bootstrap structure checks
-are documentation evidence only. Scope Capture is pending; Completion and Fresh
-Reviewer gates have not run. The planned cross-session resume exercise is not done.
-
-This docs-only change uses branch `docs/agent-continuity-bootstrap`; inspect Git/PR
-state to determine publication or merge status rather than trusting this projection.
-
-## Next authorized work
-
-Only documentation/continuity maintenance. Do not scaffold, install dependencies,
-generate application code, provision a DB, call model APIs or deploy. A new explicit
-user development instruction is required before Phase 1 in `docs/roadmap.md`.
+No MCP, outbound email, full CRM CRUD, generic template engine, multi-agent, memory,
+paid provisioning or public deployment is included. Local sandbox network access is
+unavailable; remote CI is the planned verification environment, not yet a passing result.

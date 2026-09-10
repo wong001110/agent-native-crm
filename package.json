@@ -1,0 +1,48 @@
+{
+  "name": "agent-native-crm",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "db:setup": "tsx scripts/database.ts",
+    "continuity:check": "node scripts/continuity.mjs",
+    "verify": "npm run continuity:check && npm run typecheck && npm test && npm run build"
+  },
+  "dependencies": {
+    "next": "^16.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "ai": "^6.0.0",
+    "@ai-sdk/deepseek": "^2.0.0",
+    "zod": "^4.1.0",
+    "drizzle-orm": "^0.45.0",
+    "@electric-sql/pglite": "^0.3.14",
+    "pg": "^8.16.0",
+    "@base-ui/react": "^1.0.0",
+    "lucide-react": "^0.577.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.0.0",
+    "class-variance-authority": "^0.7.1",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/pg": "^8.15.0",
+    "tailwindcss": "^4.1.0",
+    "@tailwindcss/postcss": "^4.1.0",
+    "tsx": "^4.20.0",
+    "vitest": "^3.2.0",
+    "@playwright/test": "^1.55.0",
+    "@axe-core/playwright": "^4.10.0"
+  }
+}
