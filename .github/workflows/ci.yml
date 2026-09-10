@@ -36,14 +36,28 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run db:migrate
-      - name: Static checks
-        run: npm run typecheck && npm run lint
+      - name: Typecheck
+        id: typecheck
+        continue-on-error: true
+        run: npm run typecheck
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: npm run lint
       - name: Unit, provider-protocol and PostgreSQL integration tests
+        id: tests
+        continue-on-error: true
         run: npm test
       - name: Production build
+        id: build
+        continue-on-error: true
         run: npm run build
       - run: npx playwright install --with-deps chromium
+        if: steps.build.outcome == 'success'
       - name: End-to-end and accessibility tests
+        id: e2e
+        if: steps.build.outcome == 'success'
+        continue-on-error: true
         run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: always()
@@ -56,10 +70,12 @@ jobs:
       - name: Package sources and installed SDK documentation for review
         if: always()
         run: |
-          tar -czf review-source.tgz --exclude=node_modules --exclude=.git --exclude=.next --exclude=playwright-report --exclude=test-results --exclude=review-source.tgz .
+          git archive --format=tar.gz --output=review-source.tgz HEAD
           mkdir -p review-docs
           cp -r node_modules/ai/docs review-docs/ai-sdk
           cp node_modules/ai/package.json review-docs/ai-package.json
+          npm audit --json > review-docs/dependency-audit.json || true
+          npm ls --depth=0 > review-docs/dependencies.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -68,3 +84,11 @@ jobs:
             review-source.tgz
             review-docs/
           retention-days: 7
+      - name: Required verification gate
+        if: always()
+        run: |
+          test "${{ steps.typecheck.outcome }}" = success
+          test "${{ steps.lint.outcome }}" = success
+          test "${{ steps.tests.outcome }}" = success
+          test "${{ steps.build.outcome }}" = success
+          test "${{ steps.e2e.outcome }}" = success

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "findings": [
+    {"id":"FND-MVP-001","kind":"verification","title":"Next's ProcessEnv augmentation made standalone configuration fixtures fail typecheck","status":"fixed-awaiting-verification","checkRefs":["P1-R1-C1","P2-R1-C2"],"evidence":"GitHub Actions 34516108593, job 103001806711: TS2345 in configuration fixture tests","resolution":"Configuration accepts a readonly string/undefined environment map instead of depending on framework-wide ProcessEnv augmentation."},
+    {"id":"FND-MVP-002","kind":"verification","title":"Packaging source into its own directory changed the directory while tar read it","status":"fixed-awaiting-verification","checkRefs":["P4-R5-C1"],"evidence":"GitHub Actions 34516108593: tar returned file changed as we read it","resolution":"Use git archive on the exact checked-out commit; inspect all independent verification outcomes before the final CI gate."},
+    {"id":"FND-MVP-003","kind":"reviewer","title":"Installation reported dependency advisories requiring triage","status":"open","checkRefs":["P4-R3-C2","P4-R5-C3"],"evidence":"npm ci reported 6 moderate and 1 high advisory; exploitability and package identity not established yet","next":"Collect npm audit JSON and address material runtime issues; do not run an unreviewed force upgrade."},
+    {"id":"FND-MVP-004","kind":"scope","title":"Unmerged planning PR contains additional original source and acceptance granularity","status":"reconciling","checkRefs":["P4-R5-C1"],"evidence":"PR #1 at e24c762f660b7aebbcfc003e7f30c8e42197a0f2","next":"Preserve archived source/manifest bytes, publish complete crosswalk and verify all source/check IDs are accounted for. Prior no-development hold is superseded only by the current explicit user instruction."}
+  ]
+}
