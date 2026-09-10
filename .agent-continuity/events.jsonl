@@ -1,0 +1,3 @@
+{"id":"EVT-001","type":"RECONCILIATION","project":"wong001110/agent-native-crm","base_commit":"d2e891f263b11cd5f786a33d6370cae3c2e016a0","detail":"Read six existing planning documents. Legacy Phase 0 complete means definition recorded only; no implementation evidence imported."}
+{"id":"EVT-002","type":"SCOPE_CREATED","manifest_id":"ANC-MVP-001","manifest_revision":1,"detail":"Captured approved scope and reviewer findings; open decisions remain open; all acceptance checks start pending."}
+{"id":"EVT-003","type":"AUTHORIZATION_HOLD","authority_ref":"SRC-001","implementation_authorized":false,"detail":"Continuity bootstrap does not start or authorize the CRM implementation."}

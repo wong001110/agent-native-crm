@@ -1,139 +1,73 @@
 # Project State
 
-## Current phase
+> Human-readable projection of `.agent-continuity/state.json` and captured scope.
+> Read `AGENTS.md` and `.agent-continuity/README.md` before resuming.
 
-**Phase 0 — Definition complete. Implementation has not started.**
+## Current state
 
-This repository currently contains planning and design documentation only.
+**Phase 0 — definition recorded; Agent Continuity planning bootstrap proposed.**
+**Application implementation has not started and is not authorized.**
 
-## Current product decision
+The earlier label “Phase 0 complete” described documentation being recorded, not a
+passing implementation/completion gate. All tracked acceptance checks remain pending.
+No product test, live model call, deployment or independent review is claimed.
 
-Build a **small Agent-native CRM Prototype** for technical and product validation.
+## Locked MVP direction
 
-The prototype should demonstrate that a real LLM can:
+Build a small **Agent-native CRM Prototype** for technical/product validation:
+real user intent -> real LLM -> approved tools -> deterministic seeded CRM facts ->
+interpretation -> constrained workspace -> explicit approval -> one persistent change.
 
-1. understand a user's CRM intent;
-2. choose and call approved tools;
-3. work from real structured CRM data;
-4. interpret the resulting business state;
-5. select a constrained task-oriented workspace;
-6. propose an action;
-7. execute one approved mutation;
-8. preserve access to the underlying CRM system of record.
+- Surfaces: Today, Workspace, Explore.
+- Workspaces: Focus, Investigation, Comparison.
+- Primitives: SituationCard, EvidenceList, Timeline, DataTable, ActionCard.
+- Read tools: get_crm_summary, list_deals, get_deal, get_account_context,
+  get_recent_activities.
+- Mutation: exactly one of create_task / update_deal_stage; selection remains open.
+- Core records: Customer, Deal, Activity, Task.
+- Planned stack: Next.js, React, TypeScript, Tailwind, shadcn/Base UI, selected AI
+  Elements, Vercel AI SDK, configurable DeepSeek, Zod, PostgreSQL, Drizzle,
+  Vitest and Playwright. Vercel is a target, not an authorized deployment.
 
-## Locked MVP scope
+Facts are deterministic; interpretation is generative. Keep a stable shell,
+situation/intent-first work, global scope visibility, progressive evidence/source
+access, one design system, human-controlled mutations and no arbitrary generated UI.
 
-### Primary surfaces
+## Open decisions and exclusions
 
-- Today
-- Workspace
-- Explore
+See `.agent-continuity/sources.json` for stable IDs and dispositions.
 
-### Workspace types
+- DEC-001: choose the single mutation and reconcile the reference task-creation demo.
+- DEC-002: verify actual DeepSeek provider model ID and compatible package versions;
+  earlier model/version suggestions are not verification evidence.
+- DEC-003: define the supported manual-operation path without promising full CRUD.
 
-- Focus
-- Investigation
-- Comparison
+MCP, full CRM modules, generic template/workflow engines, persistent Situations,
+multi-agent/memory/vector infrastructure, autonomy scoring, distributed services,
+and large component catalogs remain outside the core MVP. They are not forgotten work.
+Arbitrary model-generated executable UI and autonomous outbound communication are
+rejected under the current product boundary.
 
-### Initial UI primitives
+## Reference demo
 
-- SituationCard
-- EvidenceList
-- Timeline
-- DataTable
-- ActionCard
+“What should I focus on today?” -> Focus with source-backed ACME/Nova situations.
+“Why ACME?” -> Investigation with timeline, evidence and recommendation.
+Propose the chosen action -> user approves -> server tool succeeds -> Explore shows
+persisted state. The existing reference uses create_task; update it if stage update
+is selected instead. Comparison remains separately required even outside this demo.
 
-### Initial tool direction
+## Continuity status
 
-Read tools:
+Git-backed structured planning state and event ledger; no separate state service.
+Requirements/checks are mapped; all checks are pending. Bootstrap structure checks
+are documentation evidence only. Scope Capture is pending; Completion and Fresh
+Reviewer gates have not run. The planned cross-session resume exercise is not done.
 
-- get_crm_summary
-- list_deals
-- get_deal
-- get_account_context
-- get_recent_activities
-
-Mutation:
-
-- choose one of create_task or update_deal_stage during implementation planning
-
-### Core architecture rule
-
-> Facts are deterministic; interpretation is generative.
-
-CRM facts must come from tools/database. The LLM may interpret, prioritize, summarize, recommend, and select supported workspace forms, but it must not invent source-of-truth data.
-
-## Proposed stack
-
-- Next.js + React + TypeScript
-- Tailwind CSS
-- shadcn/ui + Base UI
-- selected AI Elements components
-- Vercel AI SDK
-- DeepSeek V4 Flash (server-side configurable model)
-- Zod
-- PostgreSQL
-- Drizzle ORM
-- Vitest
-- Playwright
-- Vercel deployment target
-
-## Deferred
-
-Not part of the initial MVP:
-
-- MCP integration
-- full CRM modules
-- generic template engine
-- arbitrary LLM-generated JSX
-- persistent Situation model/lifecycle
-- multi-agent orchestration
-- agent memory
-- workflow builder
-- autonomy scoring
-- event bus / Redis / Kafka
-- vector database
-- separate backend service
-
-## Reference validation flow
-
-```text
-"What should I focus on today?"
-  → real agent + CRM tools
-  → Focus workspace
-  → ACME / Nova situations
-
-"Why ACME?"
-  → account context tool
-  → Investigation workspace
-  → timeline + evidence + recommendation
-
-"Create a follow-up task."
-  → proposed mutation
-  → human approval
-  → tool execution
-  → Explore confirms persisted state
-```
-
-## UI/UX direction
-
-The interface should be modern and deliberately lighter than a conventional enterprise CRM, but it must not become an information black box.
-
-Locked principles include:
-
-- stable shell, dynamic workspace;
-- situation-first and intent-first interaction;
-- AI filters complexity, not visibility;
-- progressive control;
-- evidence before consequential action;
-- AI-first, not AI-only;
-- one consistent design system;
-- constrained component/workspace vocabulary rather than arbitrary generated UI.
+This docs-only change uses branch `docs/agent-continuity-bootstrap`; inspect Git/PR
+state to determine publication or merge status rather than trusting this projection.
 
 ## Next authorized work
 
-**None yet.**
-
-Do not scaffold, install dependencies, generate source code, connect APIs, or implement features until an explicit development instruction is given.
-
-When development begins, start with Phase 1 in [`docs/roadmap.md`](docs/roadmap.md) and preserve the MVP guardrails above.
+Only documentation/continuity maintenance. Do not scaffold, install dependencies,
+generate application code, provision a DB, call model APIs or deploy. A new explicit
+user development instruction is required before Phase 1 in `docs/roadmap.md`.
