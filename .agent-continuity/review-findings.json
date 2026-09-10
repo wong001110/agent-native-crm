@@ -1,5 +1,5 @@
 {
-  "reviewType":"fresh implementer review plus browser evidence; independent reviewer gate remains separate and blocked",
+  "reviewType":"Original implementer findings plus final acceptance review. Historical independent-review status is superseded only by the explicit review/publication records, not by test success.",
   "reviewedCommit":"dd5e4b87086844b38c70814f343756d5c34b5b51",
   "verificationArtifact":"https://github.com/wong001110/agent-native-crm/actions/runs/34516474643",
   "findings":[
@@ -8,6 +8,7 @@
     {"id":"FND-004","disposition":"mapped","requirements":["R-07"],"checks":["C-07-2"],"severity":"medium","summary":"Customer tab ignored account filter.","status":"verified","resolution":"Selected deal customer constrains the tab; regression verifies clear-filter restoration.","verifiedCommit":"dd5e4b87086844b38c70814f343756d5c34b5b51"},
     {"id":"FND-005","disposition":"mapped","requirements":["R-09"],"checks":["C-09-1"],"severity":"test","summary":"Alert selector collided with Next route announcer.","status":"verified","resolution":"Scoped to actual application error content; no weakened error behavior.","verifiedCommit":"dd5e4b87086844b38c70814f343756d5c34b5b51"},
     {"id":"FND-006","disposition":"mapped","requirements":["R-06","R-07"],"checks":["C-06-3","C-07-1"],"severity":"scope","summary":"Today lacked specified saved situations.","status":"verified","resolution":"Latest Focus snapshot includes date/mode/source access; browser reload makes no model call.","verifiedCommit":"dd5e4b87086844b38c70814f343756d5c34b5b51"},
-    {"id":"FND-007","disposition":"mapped","requirements":["R-07","R-09"],"checks":["C-07-3","C-09-3"],"severity":"low","summary":"Mobile CSS hid BR elements and joined adjacent words in starter headings.","status":"verified","resolution":"Retained mobile line breaks; test verifies rendered word separation and visual artifact was inspected.","verifiedCommit":"dd5e4b87086844b38c70814f343756d5c34b5b51"}
+    {"id":"FND-007","disposition":"mapped","requirements":["R-07","R-09"],"checks":["C-07-3","C-09-3"],"severity":"low","summary":"Mobile CSS hid BR elements and joined adjacent words in starter headings.","status":"verified","resolution":"Retained mobile line breaks; test verifies rendered word separation and visual artifact was inspected.","verifiedCommit":"dd5e4b87086844b38c70814f343756d5c34b5b51"},
+    {"id":"FND-INT-004","disposition":"mapped","requirements":["R-07","R-09"],"checks":["C-07-3","C-09-3"],"severity":"acceptance-gap","summary":"The original long-content requirement had no maximum-length mobile approval case.","status":"implemented-pending-verification","resolution":"Wrap long unbroken titles/notes without clipping; add maximum 140-character title and 800-character note mobile, keyboard, no-mutation and accessibility assertions."}
   ]
 }
