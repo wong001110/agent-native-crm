@@ -5,6 +5,9 @@
 .timeline time { color: #536674; font-size: 11px; }
 .evidence-item a { font-size: 10px; }
 .source-cell { overflow-wrap: anywhere; }
+/* Approved input limits must remain readable on narrow screens, including unbroken text. */
+.action-card, .action-card h3, .action-card .agent-prose { min-width: 0; overflow-wrap: anywhere; }
+.manual-form > * { min-width: 0; }
 .saved-focus { margin-bottom: 32px; }
 .saved-focus .section-heading>a { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--primary); }
 .saved-focus-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }

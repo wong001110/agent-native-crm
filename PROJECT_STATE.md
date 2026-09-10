@@ -1,33 +1,55 @@
 # Project State
 
-**MVP implemented; final review remediation and main-branch reconciliation in progress.**
+**Approved MVP scope implemented and verified; real DeepSeek validation is deferred.**
 
-Current authorization: Execute mode through MVP, phase-by-phase changes, batched logical
-commits and squash merging. The previous no-merge hold is superseded. Public deployment
-and paid provisioning are not authorized.
+This is a readable projection, not completion authority. Read `.agent-continuity/state.json`,
+`manifest.json`, `integration.json` and `evidence.json` before resuming.
 
-## Delivered implementation
+## Publication and phase status
 
-Today / Workspace / Explore; Focus / Investigation / Comparison; five source tools;
-AI SDK loop with explicit scripted demo mode and a real DeepSeek adapter; observed-record
-fact hydration; session-bound saved workspaces; proposed and approved internal tasks;
-manual task fallback; local demo persistence and PostgreSQL/Drizzle; responsive UI/tests.
+The P1-P4 MVP was squash merged through PR #3 as
+`96a6ecbcdb9b3b52fc46253e2e8eb05919042851`; its main CI run 34520045792 passed.
+PR #5 adds the final mobile maximum-content acceptance and verification checkpoint.
+Resolve PR #5's actual merge receipt from GitHub rather than assuming this document's
+source commit is the later squash commit. No public deployment has occurred.
 
-The existing P1-P4 development checkpoints are preserved in events.jsonl. Final head
-before this review was afef1af6a01c2de213d142a3f7e387feb33d27e1; CI 34517560032 passed.
-No real DeepSeek call has been verified. C-05-4 remains explicitly deferred to the user.
+Phase 1: application/data foundation and Explore. Phase 2: bounded SDK/tools and
+configurable live/mock providers. Phase 3: three source-backed adaptive workspaces.
+Phase 4: approved persistent tasks, failure/security/UX checks, review remediation and
+scope reconciliation. These phases are implemented; Phase 5 remains outside scope.
 
-## Current review findings
+## What works
 
-FND-INT-001: preserve/map the merged planning baseline and reconcile authorization.
-FND-INT-002: reject action proposals targeting a deal absent from the displayed workspace.
-FND-INT-003: reject repeated evidence references.
+Today / Workspace / Explore; Focus / Investigation / Comparison; five read tools;
+observed-record fact hydration; visible mode/scope/evidence; session-owned saved runs;
+manual fallback; prepare/approve/reject internal tasks with expiry/idempotency;
+local file-backed demo and real PostgreSQL/Drizzle adapter.
 
-These changes require current CI; old green tests do not certify the remediation.
-The active manifest is `.agent-continuity/manifest.json`; `integration.json` preserves
-all 39 baseline checks and their relationship to active checks. A live portion remains
-deferred wherever it maps to C-05-4.
+## Exact evidence
 
-PR #4 was a redundant foundation attempt and is closed unmerged, with its branch retained.
-Continue PR #3 rather than maintaining parallel implementations. See state.json for the
-current gate and next action. This document is not independent completion evidence.
+Application/test commit: `31428fa1d58371c1916bf813702931a2be2b8ae3`.
+CI: https://github.com/wong001110/agent-native-crm/actions/runs/34520512261
+
+39 Vitest and 15 Playwright tests passed, including real PostgreSQL integration,
+typecheck/build, keyboard/axe/mobile checks and maximum 140-character title / 800-character
+note approval. The source digest is recorded in state/evidence and enforced on resume.
+Original 38 sources / 39 checks remain mapped, including every deferred live portion.
+
+Agent source review fixed target/evidence mismatch, duplicated citations, scope drift
+and the long-content acceptance gap. It is not an independent-human or separate-model
+signoff. No fresh manual screenshot inspection or full WCAG/security certification is claimed.
+
+## Honest remaining limits
+
+C-05-4: no real DeepSeek call has been verified. The user owns server-side credentials,
+actual model ID and the later `npm run test:live` acceptance. Mock success is not live evidence.
+The intentionally aborted browser fixture still produces an ECONNRESET server diagnostic;
+stop/no-write behavior and subsequent requests pass, but its logging cause is not fully isolated.
+Local demo persistence is single-process; production operations/identity are outside this MVP.
+
+## Next work
+
+Finish the verified PR #5 squash checkpoint if still open, then stop expanding functionality.
+Do not add MCP, more mutations, full CRM CRUD, memory or multi-agent work. No automatic
+model calls or paid deployments are authorized by this handoff. PR #4 was closed as a
+redundant foundation; the separate PR #2 branch has not been overwritten or merged here.

@@ -1,39 +1,37 @@
 # Roadmap
 
-Implementation was authorized by the user on 11 September 2026. The earlier planning-only instruction is superseded. Work is executed phase by phase under Agent Continuity 0.3.4; this roadmap is a human view, not the canonical execution state.
+Implementation through the small MVP is authorized. Work follows logical phases and squash-merged PRs under Agent Continuity 0.3.4. This roadmap is a projection; exact evidence lives in the continuity records.
 
 ## Phase 0 — Definition
 
-Completed before implementation: product thesis, MVP boundaries, deterministic source-of-record separation, UI/UX protocol, stack and reference flow.
+Recorded product thesis, MVP boundaries, deterministic source separation, UX protocol, stack and reference flow. The original planning baseline is archived with every source/check mapped; old no-development flags are historical.
 
 ## Phase 1 — Foundation
 
-Implemented: Next.js/TypeScript, official UI primitives, server-only configuration, local demo and PostgreSQL/Drizzle adapters, deterministic fictional seed, Explore records and typed data boundaries.
-
-Acceptance evidence: typecheck/build, file-store tests, real CI PostgreSQL migration/seed and transaction tests. The local demo is not represented as a managed PostgreSQL instance.
+Implemented and verified: one Next.js/TypeScript application, shared UI primitives, server-only configuration, local demo and PostgreSQL/Drizzle adapters, fictional persistent seed, Explore and typed source data. CI includes a real PostgreSQL service; local files are not described as PostgreSQL.
 
 ## Phase 2 — Agent and tools
 
-Implemented: bounded AI SDK ToolLoopAgent; five read tools and prepare_task; output validation and source hydration; actual streamed tool events; configurable DeepSeek adapter and clearly labelled scripted mode.
+Implemented: bounded AI SDK ToolLoopAgent, five read tools, task preparation, output validation, observed-record hydration and streamed actual tool events. Real DeepSeek adapter and explicit scripted mode coexist without silent fallback.
 
-The user-authorized credential exception applies here: real provider/model validation is **deferred to user-owned credentials/live testing**. Scripted behavior is verified but is not evidence of open-ended model reasoning.
+Provider/model quality and real API compatibility remain **C-05-4, deferred to user-owned credentials/live testing**. Scripted verification does not prove open-ended language understanding.
 
 ## Phase 3 — Adaptive workspace
 
-Implemented: Focus, Investigation, Comparison; stable Today/Workspace/Explore shell; evidence and source navigation; saved run restoration; mode/scope/date disclosure; latest saved Focus snapshot on Today.
+Implemented and verified: Focus / Investigation / Comparison, stable navigation, source/evidence links, saved-run restoration, scope/date/mode disclosure and saved Focus on Today without a new model call. Layout, contrast, filtering and mobile-copy findings were remediated.
 
-Browser/accessibility review caught and remediated prose overflow, timeline contrast and an inconsistent customer filter. Check exact source revisions in the evidence ledger rather than relying on this narrative.
+## Phase 4 — Controlled action and acceptance
 
-## Phase 4 — Controlled action and MVP verification
+Implemented and verified: proposed task -> approve/reject -> exact session-bound, expiring, idempotent write -> persistent receipt/Explore. Manual preparation works without the model.
 
-Implemented: prepare -> approve/reject -> session-bound, expiring, idempotent task mutation -> persistent receipt and Explore update. Manual task preparation remains available without the model.
+Final application/test revision `31428fa1d58371c1916bf813702931a2be2b8ae3` passed CI 34520512261: 39 unit/integration tests, 15 browser tests, real PostgreSQL, build/typecheck, accessibility/keyboard and maximum-content mobile acceptance. Source-reading agent reviews and their limitations are documented separately.
 
-Verification includes Vitest, real CI PostgreSQL, production build, Playwright canonical and failure paths, responsive screenshots and axe checks. Fresh-review status is tracked separately from automated success. No merge or public deployment has been authorized.
+MVP publication: PR #3 squash commit `96a6ecbcdb9b3b52fc46253e2e8eb05919042851`. Final acceptance/checkpoint publication: PR #5; resolve its actual GitHub merge receipt. No public deployment is authorized or claimed.
 
 ## Phase 5 — Optional future scope
 
-Not authorized and not part of MVP completion: MCP email/calendar, new workspace forms, richer workflow automation, full CRM capabilities, memory or multiple agents. Do not proceed merely because the MVP tests pass.
+Not authorized or required for MVP completion: MCP/email/calendar, more workspace types/mutations, workflow automation, complete CRM, memory or multiple agents. Do not proceed just because tests pass.
 
-## Stop / handoff
+## Handoff
 
-Stop expanding functionality after the approved MVP. Supply real model credentials and use `npm run test:live` for the remaining live acceptance. Respect unresolved review gates and do not equate scope-complete with defect-free or production-ready.
+Stop MVP expansion. Supply real provider configuration and run `npm run test:live` for the outstanding live acceptance. Retain the known abort-fixture server diagnostic in operational notes; do not call logs error-free. Scope-complete is not defect-free, fully independently certified or production-ready.
