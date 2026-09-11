@@ -63,6 +63,20 @@ Mock mode is labelled scripted throughout the interface. It does not count as pr
 
 No full CRM modules, arbitrary JSX, template engine, MCP discovery, external integrations, autonomous email, memory, multi-agent orchestration, vector database, event bus, persistent Situation lifecycle, workflow builder, or enterprise permissions. The only implemented mutation is approved task creation.
 
-## Acceptance
+## Product acceptance
 
-The credential-free MVP is accepted only when the complete tool/UI/approval/persistence path and critical failure paths pass the tracked checks. Real-model acceptance is separate and remains visible as C-05-4, not implicitly completed. Source/check evidence and the final review status are maintained under `.agent-continuity/`.
+The credential-free MVP is accepted only when the complete tool/UI/approval/persistence path and critical failure paths have source-bound evidence. Real-model acceptance is separate and remains visible as historical check C-05-4, not implicitly completed. Review methods and actual results belong in the ordinary review reports, tests, PR and CI receipts—not an agent-specific tracking runtime.
+
+| Area | Acceptance to preserve |
+|---|---|
+| Foundation | Locked dependencies, typecheck and production build; shared shadcn/Base UI primitives and Tailwind tokens without a competing component system. |
+| Store | Deterministic inspectable records; local reopen persistence; real PostgreSQL setup, seed and adapter tests. |
+| Context tools | Five bounded, validated read tools; invalid IDs, missing data and unrelated evidence cannot masquerade as facts. |
+| Provider | Configurable real adapter; same SDK/tool/store path in labelled scripted mode; explicit live failure, prompt/loop/time limits; live quality remains deferred. |
+| Workspace | Three validated view types; observed-record hydration; inspectable source/timeline/recommendation and saved run URLs; no eval or generated executable UI. |
+| Interaction | Visible totals/mode/scope/source access; model-independent Explore and manual path; loading, error, cancellation, empty, keyboard and narrow-screen cases. |
+| Action | Proposal, explicit approval, persistent task and Explore receipt; no duplicates; reject expired/rejected/other-session proposals; execute only stored payload. |
+| Verification | Unit, real PostgreSQL and browser tests; origin/session/access and secret-redaction checks; accessibility/responsive tests; honestly attributed review. |
+| Handoff | Setup/env/live-test guidance and limits match the implementation; exact source/evidence identities distinguish passed, deferred, blocked and unknown. |
+
+Agent task-capture/ledger tests are development-tool checks, not CRM product acceptance. Their removal does not waive any row above or permit roadmap expansion.

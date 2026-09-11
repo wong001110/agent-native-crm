@@ -91,6 +91,6 @@ Requests are bounded to 8 KiB JSON, 1,200 prompt characters, six agent steps, 3,
 
 ## Verification and handoff
 
-See README for commands, `.agent-continuity/evidence.json` for check-to-commit evidence when published, and PROJECT_STATE.md for current completion/review status. A passing mocked UI test does not prove live DeepSeek behavior. A passing local file test does not prove PostgreSQL behavior; CI tests both explicitly.
+See README for ordinary test commands, docs/integration-review.md for source-bound historical evidence and PROJECT_STATE.md for project status and remaining limitations. No agent-specific state store or bootstrap command is required. A passing mocked UI test does not prove live DeepSeek behavior. A passing local file test does not prove PostgreSQL behavior; CI tests both explicitly.
 
 No MCP, outbound email, customer deletion, stage editing, workflow builder, background worker, persistent memory or multi-agent runtime is included. Add those only after a separate user-approved scope change.

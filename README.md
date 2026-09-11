@@ -8,7 +8,7 @@ A scoped experiment in intent-driven CRM: retrieve records, interpret a situatio
 
 The MVP was squash merged into `main` through [PR #3](https://github.com/wong001110/agent-native-crm/pull/3), commit `96a6ecbcdb9b3b52fc46253e2e8eb05919042851`. [PR #5](https://github.com/wong001110/agent-native-crm/pull/5) contains the final maximum-content acceptance and handoff checkpoint. Read each PR's actual merge receipt for publication status; there is **no public deployment**.
 
-The final application/test revision is `31428fa1d58371c1916bf813702931a2be2b8ae3`. Its [CI run](https://github.com/wong001110/agent-native-crm/actions/runs/34520512261) passed scope/crosswalk validation, a cold-process bootstrap simulation, typecheck, **39 Vitest tests**, a real PostgreSQL integration service, production build, and **15 Chromium/Playwright tests**. [Reports and runtime screenshots](https://github.com/wong001110/agent-native-crm/actions/runs/34520512261/artifacts/10169508178) include mobile maximum-length approval content. Subsequent documentation-only checkpoint changes bind to the same implementation digest, and CI also runs on the checkpoint and merged main.
+The recorded application/test revision is `31428fa1d58371c1916bf813702931a2be2b8ae3`. Its [CI run](https://github.com/wong001110/agent-native-crm/actions/runs/34520512261) passed typecheck, **39 Vitest tests**, a real PostgreSQL integration service, production build, and **15 Chromium/Playwright tests**, alongside historical development-tracking checks. [Reports and runtime screenshots](https://github.com/wong001110/agent-native-crm/actions/runs/34520512261/artifacts/10169508178) include mobile maximum-length approval content. These recorded results are not automatically verification of a later commit; inspect that commit's own CI.
 
 **Default mode is a labelled scripted demonstration, not a real LLM.** It exercises the actual AI SDK loop, tools, store, validation, renderer and approval boundary. The real DeepSeek adapter is implemented, but provider compatibility and reasoning quality remain **unverified until credentials are supplied**. Live failure never silently becomes mock success.
 
@@ -16,7 +16,7 @@ Recorded agent source reviews found and fixed mismatched action targets, duplica
 
 ## Quick start: no credentials required
 
-Requires Node.js 22.16 or later. Python 3 is needed only for the continuity validation command.
+Requires Node.js 22.16 or later. No agent-specific tracking tools or private state are needed.
 
 ```bash
 git clone https://github.com/wong001110/agent-native-crm.git
@@ -114,7 +114,6 @@ npm run typecheck
 npm test
 npm run build
 npm run test:e2e
-npm run continuity:check
 ```
 
 Build before browser testing. Set `TEST_DATABASE_URL` for local PostgreSQL tests; CI supplies it. A skipped database test is not a pass.
@@ -131,9 +130,9 @@ Proposals expire after 30 minutes. JSON bodies are bounded to 8 KiB, prompts to 
 
 The intentionally aborted browser-request fixture can print an `ECONNRESET`/`aborted` server diagnostic. Stop/no-write behavior and subsequent requests pass, but the transport-level log cause is not fully isolated. Logs are **not** claimed error-free; live-provider cancellation/operational behavior remains to be checked before broader deployment.
 
-## Development continuity
+## Development practice
 
-[AGENTS.md](AGENTS.md) and [`.agent-continuity/`](.agent-continuity/) preserve Agent Continuity 0.3.4 sources, checks, evidence, findings and event history. The original planning baseline is archived and all 38 sources/39 checks are mapped into the implementation scope. Live portions remain explicit deferrals. The cold-process bootstrap test is a simulation, not a complete new-agent handoff trial.
+Follow [AGENTS.md](AGENTS.md) and the existing project documents under AI-Native Development Practice. Optional execution trackers belong to the developer/agent environment, outside the checkout; they are not prerequisites for building, testing or handing off this project. Historical scope/check mappings and tracking evidence remain available at the pre-maintenance Git revision `35e6bc07e2bb3fba9f1fd7efab349f67e6c349c6`, not as active runtime dependencies.
 
 Development stops at the approved MVP; Phase 5 is not authorized. Changes use logical checkpoints and squash-merged PRs, not per-file commits.
 

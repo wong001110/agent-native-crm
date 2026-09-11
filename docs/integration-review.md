@@ -24,9 +24,10 @@ scope/crosswalk validation and a cold-process bootstrap simulation.
 ## Findings and resolutions
 
 - **FND-INT-001:** overlapping planning/implementation IDs and obsolete authorization.
-  Immutable baseline archive plus exhaustive 38-source/39-check crosswalk preserves
-  scope; live portions remain deferred. Current authorization and actual squash receipt
-  are explicit. A cold-process bootstrap is not claimed as a complete new-agent handoff.
+  The historical baseline archive and exhaustive 38-source/39-check crosswalk preserved
+  scope; live portions remained deferred. The current maintenance removes that tracking
+  machinery from the checkout, not the underlying product requirements or Git history.
+  A cold-process bootstrap is not claimed as a complete new-agent handoff.
 - **FND-INT-002:** prepared proposal could target an account absent from the displayed
   workspace. Hydration now rejects that mismatch, including an empty workspace.
 - **FND-INT-003:** duplicate evidence IDs repeated source rows and React keys. Hydration
@@ -35,8 +36,8 @@ scope/crosswalk validation and a cold-process bootstrap simulation.
   without clipping; the 140-character title / 800-character note case checks full text,
   viewport overflow, visible approval, keyboard rejection, no write and axe rules.
 
-All four resolutions have current source/test evidence. The last change is restricted
-to presentation/acceptance and checkpoint reconciliation, not added CRM capability.
+All four resolutions had source/test evidence at the revisions above. The last change
+was restricted to presentation/acceptance and checkpoint reconciliation, not added CRM capability.
 
 ## Confirmed boundaries
 
@@ -68,9 +69,11 @@ those activities. This is a small technology-validation MVP, not a production CR
 
 - CI: https://github.com/wong001110/agent-native-crm/actions/runs/34520512261
 - Runtime reports/screenshots artifact: 10169508178
-- Implementation SHA256: `575a9743bdf026187d0681b08f9ca6bc14d6aba5c0b79a9d0c9734603640a504`
-- Exact check mapping: `.agent-continuity/evidence.json`
+- Historical implementation SHA256: `575a9743bdf026187d0681b08f9ca6bc14d6aba5c0b79a9d0c9734603640a504`
+- [Historical exact check mapping](https://github.com/wong001110/agent-native-crm/blob/35e6bc07e2bb3fba9f1fd7efab349f67e6c349c6/.agent-continuity/evidence.json)
+- [Historical planning archive and crosswalk](https://github.com/wong001110/agent-native-crm/tree/35e6bc07e2bb3fba9f1fd7efab349f67e6c349c6/.agent-continuity)
 - Publication: PR #3 and final checkpoint PR #5; read actual merge receipts.
 
-Documentation-only closure must retain this implementation fingerprint and pass its
-own current CI. A later behavior change invalidates affected evidence.
+The historical fingerprint used a tool-specific input set including package.json. It
+is not asserted as the fingerprint of the later tool-decoupling change. Later changes
+must obtain current relevant CI; affected behavior evidence must be reverified.
