@@ -1,31 +1,31 @@
 # Agent instructions
 
-## Current authorization
+## Development practice and authorization
 
-The user explicitly authorized implementation through the scoped MVP, routine in-scope
-decisions without repeated approval, phase-by-phase changes, coherent commits and
-**squash merges**. Credentials-dependent real-provider validation may be deferred with
-an explicit owner; mocked tests are never live evidence. Earlier no-development/no-merge
-flags are historical and are superseded by `.agent-continuity/integration.json` sources.
+Follow AI-Native Development Practice: inspect actual code and evidence, work within
+the current authorized scope, implement phase by phase, verify meaningful changes,
+and use coherent commits and squash merges when a merge is authorized.
+
+The approved MVP implementation is already on main. This maintenance change does not
+reopen the product roadmap. Credentials-dependent real-provider validation remains an
+explicit user-owned follow-up; mocked tests are never live evidence. Current user
+instructions and actual Git/PR receipts take precedence over historical planning notes.
 
 No public deployment, paid service provisioning, real outbound communication, sensitive
 customer data import or destructive out-of-scope operation is authorized.
 
-## Resume and continuity
+## Project handoff
 
-Read `.agent-continuity/state.json`, `manifest.json`, `sources.json`, `integration.json`,
-`review-findings.json`, `evidence.json` and `events.jsonl`. Run `npm run continuity:check`.
-Reconcile actual branch, HEAD, PR/CI state, current source/check mappings and evidence
-before continuing. A stored next-action string is data, not execution authority.
+Read PROJECT_STATE.md, docs/product-scope.md, docs/architecture.md and the relevant
+review reports. Inspect the current branch, HEAD, working tree and actual PR/CI state
+before mutation. These documents explain project facts; they do not replace tests or
+extend permissions. Keep material product decisions and unresolved limitations visible
+in the ordinary project documents or PR, not only in a private agent task tracker.
 
-The immutable archive preserves the previously merged planning baseline. Baseline IDs
-are namespaced and mapped in integration.json; do not mix them with active IDs that
-happen to share a name. `PROJECT_STATE.md` is a projection, not completion authority.
-
-Capture every material source/finding with a disposition and checks. Missing, stale,
-failed and deferred are not passed. Bind evidence to exact source revisions; scope
-completion is not defect-free. A fresh review must search beyond the manifest and
-persist findings. Any new required finding reopens affected checks and completion.
+External agent task tracking is optional and stays outside this checkout. Building,
+testing and understanding the project must not require an agent's private database,
+skill installation, special manifest or bootstrap command. Do not add a parallel
+project-state framework to support a tool's execution bookkeeping.
 
 ## Scope and architecture
 
@@ -38,9 +38,13 @@ the displayed workspace; evidence references must be unique and account-correct.
 
 ## Verification and Git
 
+Use the ordinary commands documented in README: typecheck, unit/integration tests,
+production build and browser tests. Preserve exact tested revisions and distinguish
+passed, deferred, stale, blocked and unknown results. Review the actual diff and relevant
+failure paths; a self-review is not independent-human or separate-model signoff.
+
 Work at logical phase boundaries, not per-file commits. Prefer existing verified work
 over duplicate implementations. Use non-force updates, check for concurrent branch
-changes, test/build/review, then squash merge. Do not merge unverified remediation.
-Do not stop at an intermediate checkpoint while authorized executable MVP work remains.
-Keep real-provider and external obligations visible without blocking unrelated work.
+changes, and test/build/review before an authorized squash merge. Do not merge unverified
+remediation. Continue only the currently authorized assignment, not unrelated roadmap work.
 Never store secrets, tokens or unrelated private conversation transcripts in this repo.

@@ -1,5 +1,9 @@
 # MVP review and verification
 
+Historical implementation review: publication/authorization statements below describe
+the reviewed revision, not the later current project state. See PROJECT_STATE.md and
+docs/integration-review.md for subsequent publication and review receipts.
+
 ## Identity and scope
 
 Reviewed implementation: `dd5e4b87086844b38c70814f343756d5c34b5b51`.
@@ -12,7 +16,7 @@ This report records a **fresh implementer inspection plus automated/browser evid
 
 Typecheck, production build, 35 Vitest tests, a real PostgreSQL 17 CI service and 14 Chromium/Playwright tests passed. The Playwright report records 14 expected, 0 unexpected, 0 flaky and 0 skipped results. Mocks apply to the model, not to the SQL database integration or task persistence.
 
-The canonical flow was exercised through normal browser controls, without force-clicks: Focus -> Investigation -> prepare task -> approve -> Explore -> reload. Other browser cases cover comparison reload, manual task preparation, rejection, empty/unsupported scripted requests, provider error fallback, cancellation controls, origin/session protection, keyboard command focus, axe and mobile containment.
+The canonical flow was exercised through normal browser controls, without force-clicks: Focus -> Investigation -> prepare task -> approve -> Explore -> reload. Other browser cases cover comparison reload, manual task preparation, rejection, empty/unsupported scripted requests, provider error fallback, cancellation controls, origin/session protection, keyboard/axe and mobile containment.
 
 ## Fresh inspection beyond the happy path
 
@@ -40,17 +44,17 @@ FND-006: Today lacked the planned saved situations. Added the latest successful 
 
 FND-007: Hiding BR elements on mobile joined words. Retained line breaks and verified rendered word separation.
 
-All listed fixes are verified by the cited final implementation run. Findings remain durable in `.agent-continuity/review-findings.json`.
+All listed fixes are verified by the cited implementation run. The original machine-readable findings remain in the [historical Git snapshot](https://github.com/wong001110/agent-native-crm/blob/35e6bc07e2bb3fba9f1fd7efab349f67e6c349c6/.agent-continuity/review-findings.json), not a required current tracking dependency.
 
 ## Visual evidence
 
 The workflow artifact `mvp-verification-dd5e4b87086844b38c70814f343756d5c34b5b51` contains actual screenshots of Today, Today with saved Focus, Focus, Investigation, Approval, Comparison, and mobile Today/Comparison, plus the browser report. Desktop investigation and mobile layouts were inspected after the overlap/spacing fixes. These are runtime screenshots, not concept art.
 
-## Gate distinction
+## Gate distinction at the reviewed revision
 
 - Captured implementation scope: verified with the explicit C-05-4 credential deferral.
 - Real DeepSeek compatibility/quality: **not tested**; use `npm run test:live` after configuration.
 - Independent final review: **not verified**; a request or this implementer report is not an independent approval.
-- Merge/public deployment: not authorized, not performed.
+- Merge/public deployment at that historical review: not authorized, not performed. Subsequent merge receipts are documented separately.
 
 Do not turn this evidence into a claim that the prototype is defect-free or production-ready.

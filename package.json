@@ -14,14 +14,13 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "db:setup": "node --env-file-if-exists=.env.local --import tsx scripts/setup-db.ts",
-    "test:live": "node --env-file-if-exists=.env.local --import tsx scripts/live-smoke.ts",
-    "continuity:check": "python3 scripts/check-continuity.py"
+    "test:live": "node --env-file-if-exists=.env.local --import tsx scripts/live-smoke.ts"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.0",
     "@base-ui/react": "^1.0.0",
     "@streamdown/cjk": "^1.0.3",
-    "@streamdown/code": "^1.1.1",
+    "@streamdown/code": "^1.0.2",
     "@streamdown/math": "^1.0.2",
     "@streamdown/mermaid": "^1.0.2",
     "ai": "^6.0.0",

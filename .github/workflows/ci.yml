@@ -45,9 +45,6 @@ jobs:
       - name: Record exact tested head
         run: git rev-parse HEAD
       - run: npm ci --no-audit --no-fund
-      - run: npm run continuity:check
-      - name: Cold-process continuity bootstrap
-        run: python3 scripts/check-continuity.py --bootstrap
       - run: npm run db:setup
       - run: npm run typecheck
       - run: npm test -- --reporter=verbose
