@@ -10,6 +10,11 @@ export const proposalSchema = z.object({id:z.string(),sessionId:z.string(),runId
 export const toolEventSchema = z.object({id:z.string(),tool:z.string(),status:z.enum(['running','succeeded','failed']),at:z.string(),detail:z.string()});
 const itemPlan = z.object({dealId:z.string(),signal:z.enum(['attention','opportunity','watch','neutral']),interpretation:z.string().min(1).max(500),evidenceIds:z.array(z.string()).max(8)}).strict();
 const common = {title:z.string().min(1).max(100),summary:z.string().max(700),proposalId:z.string().nullable()};
+/**
+ * The model submits this flat shape through a tool call. The stricter schema
+ * below remains the source of truth for the final workspace invariants.
+ */
+export const workspaceSubmissionSchema = z.object({...common,type:z.enum(['focus','investigation','comparison']),items:z.array(itemPlan).max(5)}).strict();
 export const workspacePlanSchema = z.object({workspace:z.discriminatedUnion('type',[
   z.object({...common,type:z.literal('focus'),items:z.array(itemPlan).max(5)}).strict(),
   z.object({...common,type:z.literal('investigation'),items:z.array(itemPlan).length(1)}).strict(),
@@ -31,7 +36,9 @@ export type Workspace={runId:string;type:WorkspacePlan['type'];title:string;summ
 export type AgentRun={id:string;sessionId:string;prompt:string;mode:'mock'|'live';model:string;status:'running'|'succeeded'|'failed'|'cancelled';createdAt:string;finishedAt:string|null;workspace:Workspace|null;events:ToolEvent[];error:string|null;usage:{inputTokens:number;outputTokens:number}|null};
 export type PublicRun=Omit<AgentRun,'sessionId'>;
 export type AgentEvent={type:'started';runId:string;mode:'mock'|'live'}|{type:'tool';event:ToolEvent}|{type:'workspace';workspace:Workspace}|{type:'error';message:string;runId?:string};
-export const requestSchema=z.object({prompt:z.string().trim().min(1).max(1200),contextDealIds:z.array(z.string().max(80)).max(4).default([])}).strict();
+export const conversationTurnSchema=z.object({role:z.enum(['user','assistant']),content:z.string().trim().min(1).max(700)}).strict();
+export type ConversationTurn=z.infer<typeof conversationTurnSchema>;
+export const requestSchema=z.object({prompt:z.string().trim().min(1).max(1200),contextDealIds:z.array(z.string().max(80)).max(4).default([]),conversation:z.array(conversationTurnSchema).max(6).default([])}).strict();
 export const actionRequestSchema=z.discriminatedUnion('intent',[
   z.object({intent:z.literal('prepare'),draft:taskDraftSchema}).strict(),
   z.object({intent:z.literal('approve'),proposalId:z.string().uuid()}).strict(),

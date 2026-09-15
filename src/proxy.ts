@@ -1,14 +1,15 @@
 import {NextResponse,type NextRequest} from 'next/server';
-import {createHash,randomUUID,timingSafeEqual} from 'node:crypto';
-function equal(a:string,b:string){const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&timingSafeEqual(x,y);}
+import {createHash,randomUUID} from 'node:crypto';
+import {authCookieName,hasValidAuthenticationToken} from './lib/auth';
 export function proxy(request:NextRequest){
   const password=process.env.APP_PASSWORD;
   const protectedMode=process.env.AGENT_MODE==='live'||process.env.DB_MODE==='postgres';
   if(process.env.NODE_ENV==='production'&&protectedMode&&!password)return new NextResponse('Configure APP_PASSWORD before exposing live or PostgreSQL mode.',{status:503});
-  if(password){
-    const value=request.headers.get('authorization')??'';let credentials='';
-    if(value.startsWith('Basic ')&&value.length<2048){try{credentials=Buffer.from(value.slice(6),'base64').toString('utf8');}catch{}}
-    if(!equal(credentials,`demo:${password}`))return new NextResponse('Demo access requires authentication.',{status:401,headers:{'WWW-Authenticate':'Basic realm="CRM Prototype", charset="UTF-8"','Cache-Control':'no-store'}});
+  const publicRoute=request.nextUrl.pathname==='/login'||request.nextUrl.pathname==='/api/auth/login';
+  if(password&&!publicRoute&&!hasValidAuthenticationToken(request.cookies.get(authCookieName)?.value,password)){
+    if(request.nextUrl.pathname.startsWith('/api/'))return NextResponse.json({error:'Sign in is required to access this workspace.'},{status:401,headers:{'Cache-Control':'no-store'}});
+    const login=request.nextUrl.clone();login.pathname='/login';login.search='';login.searchParams.set('next',`${request.nextUrl.pathname}${request.nextUrl.search}`);
+    return NextResponse.redirect(login);
   }
   const supplied=request.cookies.get('crm-session')?.value;
   const token=supplied&&/^[0-9a-f-]{36}$/i.test(supplied)?supplied:randomUUID();
