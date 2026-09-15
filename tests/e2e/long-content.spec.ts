@@ -1,9 +1,10 @@
 import {test,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import {authenticate} from './auth';
 
 test('maximum-length proposal stays readable and keyboard-operable on mobile',async({page},info)=>{
   await page.setViewportSize({width:390,height:844});
-  await page.goto('/explore');
+  await authenticate(page,'/explore');
   await page.getByRole('button',{name:'New task',exact:true}).click();
   const title='CustomerFollowUp'.repeat(10).slice(0,140);
   const note='Context'.repeat(115).slice(0,800);
