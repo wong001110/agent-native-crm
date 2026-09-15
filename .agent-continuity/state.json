@@ -8,7 +8,7 @@
   "baseCommit":"96a6ecbcdb9b3b52fc46253e2e8eb05919042851",
   "manifest":".agent-continuity/manifest.json",
   "manifestRevision":1,
-  "manifestSha256":"5c81fdfaf047c4a47cfc58f4336c8c646833ef0c9851de7d1b2576ac65f6d526",
+  "manifestSha256":"5ac8704d0bf58ebf278aa470da46f1691ac53805a9126c86e0afd2fcbe2e31c1",
   "integration":".agent-continuity/integration.json",
   "integrationRevision":1,
   "status":"agent-output-revalidated-awaiting-squash-merge",
