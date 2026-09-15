@@ -125,7 +125,7 @@ Coverage includes persistence/reopen, stored-payload execution, concurrent/idemp
 
 Only approved **internal task creation** is implemented. No email sending, stage editing, deletion, MCP, persistent memory, multi-agent, vector database, external worker or workflow builder.
 
-The session cookie scopes runs/proposals/tasks; clearing it loses access to that session's records. This is not enterprise identity or tenant RBAC. `APP_PASSWORD` enables HTTP Basic demo access with username `demo`; production live/PostgreSQL modes fail closed without it. Use HTTPS remotely and do not expose sensitive customer data.
+The session cookie scopes runs/proposals/tasks; clearing it loses access to that session's records. This is not enterprise identity or tenant RBAC. `APP_PASSWORD` enables the in-app sign-in screen; production live/PostgreSQL modes fail closed without it. Use HTTPS remotely and do not expose sensitive customer data.
 
 Proposals expire after 30 minutes. JSON bodies are bounded to 8 KiB, prompts to 1,200 characters, runs to six steps/45 seconds and one provider retry. Admission limits are per process, not distributed protection. Local files are not multiprocess/serverless persistence.
 

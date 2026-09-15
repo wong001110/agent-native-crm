@@ -1,7 +1,9 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
 import {sameOrigin,readJson,sessionOf,acquireRun,errorResponse} from '../src/lib/http';
-import {actionRequestSchema} from '../src/lib/contracts';
+import {actionRequestSchema,requestSchema} from '../src/lib/contracts';
+import {authCookieName,authenticationToken} from '../src/lib/auth';
 import {proxy} from '../src/proxy';
+import {POST as login} from '../src/app/api/auth/login/route';
 import {NextRequest} from 'next/server';
 afterEach(()=>vi.unstubAllEnvs());
 describe('request and credential boundaries',()=>{
@@ -9,9 +11,12 @@ describe('request and credential boundaries',()=>{
   it('bounds JSON bodies even without Content-Length',async()=>{await expect(readJson(new Request('http://localhost/api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:'x'.repeat(9000)})}))).rejects.toThrow('too large');});
   it('rejects malformed JSON and non-JSON input',async()=>{await expect(readJson(new Request('http://localhost/api',{method:'POST',headers:{'Content-Type':'application/json'},body:'{bad'}))).rejects.toThrow('not valid JSON');await expect(readJson(new Request('http://localhost/api',{method:'POST',body:'hello'}))).rejects.toThrow('application/json');});
   it('accepts only proposal IDs at the execution endpoint',()=>{expect(actionRequestSchema.safeParse({intent:'approve',proposalId:'d03c7422-a3fb-422c-a1cb-591ea2c9f380',draft:{title:'tampered'}}).success).toBe(false);});
+  it('bounds the untrusted client chat context',()=>{const turn={role:'user',content:'ACME'};expect(requestSchema.safeParse({prompt:'What about it?',conversation:Array.from({length:7},()=>turn)}).success).toBe(false);expect(requestSchema.safeParse({prompt:'What about it?',conversation:[{role:'assistant',content:'x'.repeat(701)}]}).success).toBe(false);});
   it('requires an internal session identity',()=>{expect(()=>sessionOf(new Request('http://localhost'))).toThrow('Reload');});
   it('does not expose raw provider or database secrets in errors',async()=>{const response=errorResponse(new Error('Database password: secret-token'));expect(JSON.stringify(await response.json())).not.toContain('secret-token');});
-  it('requires authentication when a password is configured',()=>{vi.stubEnv('APP_PASSWORD','test-only-password');const response=proxy(new NextRequest('http://localhost:3000'));expect(response.status).toBe(401);expect(response.headers.get('WWW-Authenticate')).toContain('Basic');});
+  it('redirects unauthenticated visitors to the in-app sign-in screen',()=>{vi.stubEnv('APP_PASSWORD','test-only-password');const response=proxy(new NextRequest('http://localhost:3000/workspace?run=example'));expect(response.status).toBe(307);expect(response.headers.get('location')).toBe('http://localhost:3000/login?next=%2Fworkspace%3Frun%3Dexample');expect(response.headers.get('WWW-Authenticate')).toBeNull();});
+  it('allows the sign-in route and a valid authentication cookie',()=>{vi.stubEnv('APP_PASSWORD','test-only-password');expect(proxy(new NextRequest('http://localhost:3000/login')).status).toBe(200);const response=proxy(new NextRequest('http://localhost:3000',{headers:{Cookie:`${authCookieName}=${authenticationToken('test-only-password')}`}}));expect(response.status).toBe(200);});
+  it('exchanges the configured password for an HttpOnly authentication cookie',async()=>{vi.stubEnv('APP_PASSWORD','test-only-password');const response=await login(new Request('http://localhost:3000/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:'test-only-password'})}));expect(response.status).toBe(200);expect(response.headers.get('set-cookie')).toContain(`${authCookieName}=`);expect(response.headers.get('set-cookie')).toContain('HttpOnly');});
   it('fails closed for production live mode without an access password',()=>{vi.stubEnv('NODE_ENV','production');vi.stubEnv('AGENT_MODE','live');vi.stubEnv('APP_PASSWORD','');expect(proxy(new NextRequest('http://localhost:3000')).status).toBe(503);});
   it('overwrites a spoofed internal session header',()=>{vi.stubEnv('APP_PASSWORD','');vi.stubEnv('AGENT_MODE','mock');vi.stubEnv('DB_MODE','demo');const response=proxy(new NextRequest('http://localhost:3000',{headers:{'x-crm-session':'forged'}}));expect(response.headers.get('x-middleware-request-x-crm-session')).toMatch(/^[a-f0-9]{64}$/);expect(response.cookies.get('crm-session')?.httpOnly).toBe(true);});
   it('does not admit concurrent runs for the same session',()=>{const release=acquireRun('rate-limit-test');expect(()=>acquireRun('rate-limit-test')).toThrow('Too many');release();const next=acquireRun('rate-limit-test');next();});
